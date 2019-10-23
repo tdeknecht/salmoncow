@@ -1,0 +1,3 @@
+# Salmoncow
+
+For fun.
