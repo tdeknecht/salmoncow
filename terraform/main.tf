@@ -102,6 +102,20 @@ resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
 }
 
 # ------------------------------------------------------------------------------
+# API Gateway
+# ------------------------------------------------------------------------------
+
+# salmoncow
+# module "salmoncow_api_lambda" {
+#   source = "git::https://github.com/tdeknecht/aws-terraform//modules/hello_world/rest_api_lambda/"
+#   # source = "../../../terraform/modules/hello_world/rest_api_lambda"
+
+#   ou   = local.ou
+#   name = "salmoncow"
+#   tags = local.tags
+# }
+
+# ------------------------------------------------------------------------------
 # S3: Buckets
 # ------------------------------------------------------------------------------
 
