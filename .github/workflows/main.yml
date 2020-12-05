@@ -18,10 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Terraform dir
-        run: |
-          cd terraform
-          
       - name: Set AWS credentials
         run: |
           aws --version
@@ -30,11 +26,13 @@ jobs:
 
       - name: Terraform INIT and PLAN
         run: |
+          cd terraform
           terraform init
           terraform plan
 
       - name: Terraform APPLY
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: |
+          cd terraform
           terraform apply -auto-approve
 
