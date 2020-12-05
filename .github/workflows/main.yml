@@ -6,7 +6,7 @@ on:
   #   branches: [ master ]
 
 jobs:
-  build:
+  build-infra:
     runs-on: ubuntu-latest
 
     container: 
@@ -36,3 +36,26 @@ jobs:
           cd terraform
           terraform apply -auto-approve
 
+  build-app:
+    runs-on: ubuntu-latest
+
+    # container: 
+    #   image: tdeknecht/aws:latest
+    #   env:
+    #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+    #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set AWS credentials
+        run: |
+          aws --version
+          aws configure set aws_access_key_id ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws configure set aws_secret_access_key ${{secrets.AWS_SECRET_ACCESS_KEY}}
+      
+      - name: Copy www
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        run: |
+          cd www
+          aws s3 sync . s3://salmoncow.com --delete
