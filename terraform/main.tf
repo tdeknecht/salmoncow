@@ -124,8 +124,7 @@ resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
 
 # salmoncow.com (website host)
 module "s3_bucket_salmoncow_com" {
-  # source = "git::https://github.com/tdeknecht/aws-terraform//modules/storage/s3_bucket/"
-  source = "../../aws-terraform/modules/storage/s3_bucket"
+  source = "git::https://github.com/tdeknecht/aws-terraform//modules/storage/s3_bucket/"
 
   ou                  = local.ou
   use_case            = local.use_case
