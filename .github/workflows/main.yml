@@ -56,7 +56,7 @@ jobs:
       
       - name: Copy www
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        run:
-          - cd www
-          - aws s3 ls salmoncow.com
+        run: |
+          cd www
+          aws s3 ls salmoncow.com
      #     aws s3 sync . s3://salmoncow.com --delete
