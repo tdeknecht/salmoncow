@@ -71,6 +71,10 @@ resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
   origin {
     domain_name = module.s3_bucket_salmoncow_com.bucket_domain_name
     origin_id   = local.s3_origin_id
+
+    s3_origin_config {
+    origin_access_identity = aws_cloudfront_origin_access_identity.salmoncow_com_oai.cloudfront_access_identity_path
+    }
   }
 
   viewer_certificate {
@@ -104,6 +108,10 @@ resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
   }
 }
 
+resource "aws_cloudfront_origin_access_identity" "salmoncow_com_oai" {
+  comment = "salmoncow.com origin access identity"
+}
+
 # ------------------------------------------------------------------------------
 # API Gateway
 # ------------------------------------------------------------------------------
@@ -135,10 +143,10 @@ module "s3_bucket_salmoncow_com" {
   tags                = local.tags
 
   # website config
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  # block_public_acls       = false
+  # block_public_policy     = false
+  # ignore_public_acls      = false
+  # restrict_public_buckets = false
   index_document          = "index.html"
   error_document          = "error.html"
 }
@@ -149,13 +157,13 @@ output "s3_salmoncow_com_bucket_domain_name" { value = module.s3_bucket_salmonco
 
 data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_com" {
   statement {
-    sid       = "publicRead"
+    sid       = "OaiGetObject"
     actions   = ["s3:GetObject"]
     resources = ["arn:aws:s3:::salmoncow.com/*"]
     effect    = "Allow"
     principals {
-      type        = "*"
-      identifiers = ["*"]
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.salmoncow_com_oai.iam_arn]
     }
   }
 }
