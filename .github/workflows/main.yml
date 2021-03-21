@@ -39,11 +39,11 @@ jobs:
   build-app:
     runs-on: ubuntu-latest
 
-    container: 
-      image: tdeknecht/aws:latest
-      env:
-        AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-        AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+    # container: 
+    #   image: tdeknecht/aws:latest
+    #   env:
+    #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+    #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
     steps:
       - uses: actions/checkout@v1
@@ -58,4 +58,5 @@ jobs:
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: |
           cd www
+          aws s3 ls salmoncow.com
           aws s3 sync . s3://salmoncow.com --delete
