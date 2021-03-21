@@ -143,10 +143,6 @@ module "s3_bucket_salmoncow_com" {
   tags                = local.tags
 
   # website config
-  # block_public_acls       = false
-  # block_public_policy     = false
-  # ignore_public_acls      = false
-  # restrict_public_buckets = false
   index_document          = "index.html"
   error_document          = "error.html"
 }
