@@ -162,15 +162,6 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_com" {
       identifiers = [aws_cloudfront_origin_access_identity.salmoncow_com_oai.iam_arn]
     }
   }
-  statement {
-    sid       = "salmoncowDeployer"
-    actions   = ["s3:*"]
-    resources = ["arn:aws:s3:::salmoncow.com/*"]
-    principals {
-      type        = "AWS"
-      identifiers = [data.aws_caller_identity.current.account_id]
-    }
-  }
 }
 
 # www.salmoncow.com (website redirect)
