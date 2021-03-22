@@ -29,11 +29,8 @@ resource "aws_route53_record" "www_salmoncow_com" {
   type    = "A"
 
   alias {
-    # name                   = aws_cloudfront_distribution.salmoncow_s3_distribution.domain_name
-    # zone_id                = aws_cloudfront_distribution.salmoncow_s3_distribution.hosted_zone_id
-    
-    name                   = aws_route53_record.salmoncow_com.name
-    zone_id                = module.route53_zone_salmoncow_com.zone_id
+    name                   = aws_cloudfront_distribution.salmoncow_s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.salmoncow_s3_distribution.hosted_zone_id
     evaluate_target_health = false
   }
 }
