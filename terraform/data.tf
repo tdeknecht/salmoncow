@@ -14,8 +14,8 @@ locals {
   s3_origin_id = "S3-salmoncow.com"
 
   tags = {
-    "terraform"  = true
-    "owner"      = "salmoncow"
-    "use_case"   = local.use_case
+    "terraform" = true
+    "owner"     = "salmoncow"
+    "use_case"  = local.use_case
   }
 }

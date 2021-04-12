@@ -70,7 +70,7 @@ resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
     origin_id   = local.s3_origin_id
 
     s3_origin_config {
-    origin_access_identity = aws_cloudfront_origin_access_identity.salmoncow_com_oai.cloudfront_access_identity_path
+      origin_access_identity = aws_cloudfront_origin_access_identity.salmoncow_com_oai.cloudfront_access_identity_path
     }
   }
 
@@ -140,8 +140,8 @@ module "s3_bucket_salmoncow_com" {
   tags                = local.tags
 
   # website config
-  index_document          = "index.html"
-  error_document          = "error.html"
+  index_document = "index.html"
+  error_document = "error.html"
 }
 
 output "s3_salmoncow_com_id" { value = module.s3_bucket_salmoncow_com.id }
@@ -200,3 +200,16 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow" {
     }
   }
 }
+
+# ------------------------------------------------------------------------------
+# User Federation
+# ------------------------------------------------------------------------------
+
+module "federation" {
+  source = "./federation"
+
+  tags  = local.tags
+  owner = local.tags["owner"]
+}
+
+output "cognito_client_id" { value = module.federation.client_id }
