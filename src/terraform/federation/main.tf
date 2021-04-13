@@ -5,7 +5,13 @@ resource "aws_cognito_user_pool" "pool" {
   name = "${var.owner}-pool"
   tags = var.tags
 
-  username_attributes = ["email"]
+  username_attributes      = ["email"]
+  auto_verified_attributes = ["email"]
+
+  verification_message_template {
+    email_subject = "Verification code for Salmoncow"
+    email_message = "Your confirmation code is {####}. Welcome to Salmoncow!"
+  }
 
   account_recovery_setting {
     recovery_mechanism {

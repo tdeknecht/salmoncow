@@ -1,9 +1,9 @@
 name: CI
 
 on:
-  # push:
-  pull_request:
-    branches: [ master ]
+  push:
+  # pull_request:
+  #   branches: [ master ]
 
 jobs:
   build-infra:
@@ -26,14 +26,14 @@ jobs:
 
       - name: Terraform INIT and PLAN
         run: |
-          cd terraform
+          cd src/terraform
           terraform init
           terraform plan
 
       - name: Terraform APPLY
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: |
-          cd terraform
+          cd src/terraform
           terraform apply -auto-approve
 
   build-app:
@@ -55,8 +55,8 @@ jobs:
           aws configure set aws_secret_access_key ${{secrets.AWS_SECRET_ACCESS_KEY}}
           aws configure set region us-east-1
       
-      - name: Copy www
+      - name: Copy src/www
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: |
-          cd www
+          cd src/www
           aws s3 sync . s3://salmoncow.com --delete
