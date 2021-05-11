@@ -2,8 +2,8 @@
 // cognito javascript SDK install (https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup)
 
 const poolData = {
-    UserPoolId: '',
-    ClientId: ''
+    UserPoolId: 'us-east-1_vM9ZeVvX6',
+    ClientId: '1kpdb8dcjqpv7i9fhh1859rkbu'
 }
 
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
