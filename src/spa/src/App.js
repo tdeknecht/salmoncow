@@ -11,13 +11,36 @@ function App() {
       
       <Welcome name="Tyler" />
 
-      <SignupForm />
+      <SignupFormFunc />
 
     </div>
   );
 }
 
 export default App;
+
+function SignupFormFunc() {
+  const handleSubmit= (event) => {
+    event.preventDefault();
+    console.log("calling signUp...")
+  }
+
+  const [email, setEmail] = React.useState('');
+
+  const [password, setPassword] = React.useState('');
+
+  return (
+    <form onSubmit={event => {handleSubmit(event)}}>
+      <label>
+        <input type="text" name="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+      </label>
+      <label>
+        <input type="password" name="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+      </label>
+      <input type="submit" value="Join" />
+    </form>
+  );
+}
 
 class SignupForm extends React.Component {
   constructor(props) {
@@ -34,8 +57,7 @@ class SignupForm extends React.Component {
   }
   
   handleSubmit(event) {
-    // const { email, password } = this.state;
-    event.preventDefault(); // prevent unnecessary navigate on submit
+    event.preventDefault();
     signUp(this.state);
   }
 
