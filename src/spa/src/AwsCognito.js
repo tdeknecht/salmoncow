@@ -11,7 +11,7 @@ const poolData = {
 
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-function signUp(formData) {
+function awsCognitoSignUp(formData) {
   // attributes that should be placed onto user object
   // I have no additional attributes, but this is a good reference for how
   const attributes = [
@@ -19,6 +19,8 @@ function signUp(formData) {
   ]
   userPool.signUp(formData.email, formData.password, attributes, null, onSignUp);
 }
+
+export default AwsCognitoSignUp
 
 function onSignUp(err, userData) {
   if (err) {
