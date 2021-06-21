@@ -27,6 +27,7 @@ jobs:
       - name: Terraform INIT and PLAN
         run: |
           cd src/terraform
+          terraform -version
           terraform init
           terraform plan
 
