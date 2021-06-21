@@ -56,14 +56,14 @@ function awsCognitoSignUp(formData) {
     }
     var cognitoUser = result.user;
     console.log('user name is ' + cognitoUser.getUsername());
-    confirmUser(cognitoUser);
+    // confirmUser(cognitoUser);
   });
 }
 
-// allow user to put in their confirmation code if user is successfully created
 function confirmUser(user) {
-  const confirmCode = prompt('Confirmation code:'); // quick and dirty prompt box
+  const confirmCode = prompt('Confirmation code:');
   // user here is an instance of CognitoUser, so it already inherits necessary method
+  // otherwise I would have to define a new cognitoUser if handled independently
   user.confirmRegistration(confirmCode, true, onConfirmed);
 }
 
