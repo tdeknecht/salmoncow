@@ -20,11 +20,12 @@ function App() {
 
 export default App;
 
-// this is equivalent to class Welcome below
+// (A) function approach to Welcome
 function Welcome(props) {
   return <h1>Hello, {props.name}</h1>;
 }
 
+// (B) class approach to Welcome
 // class Welcome extends React.Component {
 //   render() {
 //     return <h1>Hello, {this.props.name}</h1>;

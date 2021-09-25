@@ -3,7 +3,7 @@ import React from 'react';
 
 function SignUpFormFunc() {
   const handleSubmit = (event) => {
-    event.preventDefault();
+    event.preventDefault(); // prevents loading new window on event
     awsCognitoSignUp({
       name: name,
       email: email, 
@@ -60,6 +60,7 @@ function awsCognitoSignUp(formData) {
   });
 }
 
+// Prompts the NEW user to input a confirmation code sent to them by Cognito (if confirmation set to TRUE)
 function confirmUser(user) {
   const confirmCode = prompt('Confirmation code:');
   // user here is an instance of CognitoUser, so it already inherits necessary method
