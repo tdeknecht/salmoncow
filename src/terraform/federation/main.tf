@@ -2,7 +2,7 @@
 # (https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html)
 
 resource "aws_cognito_user_pool" "pool" {
-  name = "${var.owner}-pool"
+  name = "${var.tenant}-pool"
   tags = var.tags
 
   username_attributes      = ["email"]
@@ -26,7 +26,7 @@ resource "aws_cognito_user_pool" "pool" {
 }
 
 resource "aws_cognito_user_pool_client" "client" {
-  name = "${var.owner}-client"
+  name = "${var.tenant}-client"
 
   user_pool_id = aws_cognito_user_pool.pool.id
 

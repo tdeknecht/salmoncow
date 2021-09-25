@@ -1,7 +1,15 @@
-variable "tags" {
-  type = map(any)
+variable "ou" {
+  type = string
 }
 
-variable "owner" {
+variable "use_case" {
   type = string
+}
+
+variable "tenant" {
+  type = string
+}
+
+variable "tags" {
+  type = map(any)
 }

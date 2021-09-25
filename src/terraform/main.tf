@@ -1,4 +1,25 @@
 # ------------------------------------------------------------------------------
+# data, variables, locals, etc.
+# ------------------------------------------------------------------------------
+
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_account_alias" "current" {}
+
+locals {
+  s3_origin_id = "S3-salmoncow.com"
+
+  tags = {
+    "terraform" = true
+    "region"    = var.region
+    "ou"        = var.ou
+    "use_case"  = var.use_case
+    "tenant"    = var.tenant
+  }
+}
+
+
+# ------------------------------------------------------------------------------
 # Route 53
 # ------------------------------------------------------------------------------
 
@@ -43,7 +64,7 @@ resource "aws_route53_record" "www_salmoncow_com" {
 module "acm_cert_salmoncow_com" {
   source = "git::https://github.com/tdeknecht/aws-terraform//modules/network/acm_certificate/"
 
-  ou                        = local.ou
+  ou                        = var.ou
   certificate_domain_name   = "salmoncow.com"
   validation_domain_name    = "salmoncow.com"
   validation_method         = "DNS"
@@ -131,8 +152,8 @@ resource "aws_cloudfront_origin_access_identity" "salmoncow_com_oai" {
 module "s3_bucket_salmoncow_com" {
   source = "git::https://github.com/tdeknecht/aws-terraform//modules/storage/s3_bucket/"
 
-  ou                  = local.ou
-  use_case            = local.use_case
+  ou                  = var.ou
+  use_case            = var.use_case
   bucket              = "salmoncow.com"
   versioning          = true
   base_lifecycle_rule = true
@@ -165,8 +186,8 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_com" {
 module "s3_bucket_www_salmoncow_com" {
   source = "git::https://github.com/tdeknecht/aws-terraform//modules/storage/s3_bucket/"
 
-  ou                  = local.ou
-  use_case            = local.use_case
+  ou                  = var.ou
+  use_case            = var.use_case
   bucket              = "www.salmoncow.com"
   versioning          = false
   base_lifecycle_rule = false
@@ -180,8 +201,8 @@ module "s3_bucket_www_salmoncow_com" {
 module "s3_bucket_salmoncow" {
   source = "git::https://github.com/tdeknecht/aws-terraform//modules/storage/s3_bucket/"
 
-  ou                  = local.ou
-  use_case            = local.use_case
+  ou                  = var.ou
+  use_case            = var.use_case
   bucket              = "salmoncow"
   versioning          = true
   base_lifecycle_rule = true
@@ -208,8 +229,11 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow" {
 module "federation" {
   source = "./federation"
 
-  tags  = local.tags
-  owner = local.tags["owner"]
+  ou       = var.ou
+  use_case = var.use_case
+  tenant   = var.tenant
+
+  tags     = local.tags
 }
 
 output "cognito_client_id" { value = module.federation.client_id }
