@@ -1,4 +1,5 @@
 // Used some of this guide: https://medium.com/technoetics/create-basic-login-forms-using-react-js-hooks-and-bootstrap-2ae36c15e551
+// AWS Cognito guide: https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
 
 // import React from 'react';
 // import logo from './images/salmoncow.png';

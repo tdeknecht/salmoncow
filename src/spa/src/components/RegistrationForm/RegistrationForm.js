@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import './RegistrationForm.css';
+import {USER_POOL_ID, CLIENT_ID} from '../../constants/cognito';
 
 function RegistrationForm(props) {
 
@@ -20,23 +21,26 @@ function RegistrationForm(props) {
   const handleSubmitClick = (e) => {
     e.preventDefault();
     if(state.password === state.confirmPassword) {
-      awsCognitoSignUp()    
+      awsCognitoSignUp({
+        email: state.email, 
+        password: state.password
+      });
     } else {
       props.showError('Passwords do not match');
     }
   }
 
-  // AWS Cognito init
+  // use case 1
   const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
   const poolData = {
-    UserPoolId: 'us-east-1_vM9ZeVvX6',
-    ClientId: '1kpdb8dcjqpv7i9fhh1859rkbu'
+    UserPoolId: USER_POOL_ID,
+    ClientId: CLIENT_ID,
   }
   const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
   
   const awsCognitoSignUp = (formData) => {
     const attributes = [
-      { Name: 'name', Value: formData.name }
+      // { Name: 'name', Value: formData.name }
     ]
     userPool.signUp(formData.email, formData.password, attributes, null, function(
       err,
@@ -48,7 +52,20 @@ function RegistrationForm(props) {
       }
       var cognitoUser = result.user;
       console.log('user name is ' + cognitoUser.getUsername());
-      // confirmUser(cognitoUser);
+
+      confirmUser(cognitoUser);
+    });
+  }
+
+  // use case 2
+  const confirmUser = (cognitoUser) => {
+    const confirmCode = prompt('Confirmation code:')
+    cognitoUser.confirmRegistration(confirmCode, true, function(err, result) {
+      if (err) {
+        alert(err.message || JSON.stringify(err));
+        return;
+      }
+      console.log('call result: ' + result);
     });
   }
 
