@@ -12,13 +12,13 @@ import React, {useState} from 'react';
 
 import './App.css';
 
-// import Home from './components/Home/Home';
+import Home from './components/Home/Home';
 import Header from './components/Header/Header';
-// import LoginForm from './components/LoginForm/LoginForm';
+import LoginForm from './components/LoginForm/LoginForm';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
 import AlertComponent from './components/AlertComponent/AlertComponent'; 
 
-// import PrivateRoute from './utils/PrivateRoute';
+import PrivateRoute from './utils/PrivateRoute';
 import {
   BrowserRouter as Router,
   Switch,
@@ -40,12 +40,12 @@ function App() {
             <Route path="/register">
               <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle}/>
             </Route>
-            {/* <Route path="/login">
+            <Route path="/login">
               <LoginForm showError={updateErrorMessage} updateTitle={updateTitle}/>
             </Route>
             <PrivateRoute path="/home">
               <Home/>
-            </PrivateRoute> */}
+            </PrivateRoute>
           </Switch>
           <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage}/>
         </div>

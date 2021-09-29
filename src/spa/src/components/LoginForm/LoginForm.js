@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
 import './LoginForm.css';
-import {AWS_REGION, USER_POOL_ID, CLIENT_ID} from '../../constants/cognito';
+import {USER_POOL_ID, CLIENT_ID, ACCESS_TOKEN_NAME} from '../../constants/cognito';
 import { withRouter } from "react-router-dom";
-import * as AWS from 'aws-sdk/global';
 
 function LoginForm(props) {
   const [state , setState] = useState({
@@ -22,21 +21,21 @@ function LoginForm(props) {
   const handleSubmitClick = (e) => {
     e.preventDefault();
     const payload={
-      "email":state.email,
-      "password":state.password,
+      "Username" : state.email,
+      "Password" : state.password,
     }
 
     // use case 4
-    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
-      payload
-    );
+    // simplified: https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html
+    const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
+    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
     const poolData = {
       UserPoolId: USER_POOL_ID,
       ClientId: CLIENT_ID,
     }
     const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
     const userData = {
-      Username: 'username',
+      Username: state.email,
       Pool: userPool,
     };
     const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
@@ -44,57 +43,47 @@ function LoginForm(props) {
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function(result) {
         const accessToken = result.getAccessToken().getJwtToken();
+
+        setState(prevState => ({
+          ...prevState,
+          'successMessage' : 'Login successful. Redirecting to home page..'
+        }))
+        localStorage.setItem(ACCESS_TOKEN_NAME,accessToken); //TODO: store in httpOnly cookie
+        redirectToHome();
+        props.showError(null)
     
-        AWS.config.region = AWS_REGION;
+        // AWS.config.region = AWS_REGION;
+        // AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        //   IdentityPoolId: USER_POOL_ID,
+        //   Logins: {
+        //     ['cognito-idp.'+AWS_REGION+'.amazonaws.com/'+USER_POOL_ID]: result
+        //       .getIdToken()
+        //       .getJwtToken(),
+        //   },
+        // });
     
-        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: USER_POOL_ID,
-          Logins: {
-            ['cognito-idp.'+AWS_REGION+'.amazonaws.com/'+USER_POOL_ID]: result
-              .getIdToken()
-              .getJwtToken(),
-          },
-        });
-    
-        //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
-        AWS.config.credentials.refresh(error => {
-          if (error) {
-            console.error(error);
-          } else {
-            // Instantiate aws sdk service objects now that the credentials have been updated.
-            // example: var s3 = new AWS.S3();
-            console.log('Successfully logged!');
-          }
-        });
+        // //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
+        // AWS.config.credentials.refresh(error => {
+        //   if (error) {
+        //     console.error(error);
+        //   } else {
+        //     // Instantiate aws sdk service objects now that the credentials have been updated.
+        //     // example: var s3 = new AWS.S3();
+        //     setState(prevState => ({
+        //       ...prevState,
+        //       'successMessage' : 'Login successful. Redirecting to home page..'
+        //     }))
+        //     localStorage.setItem(ACCESS_TOKEN_NAME,accessToken);
+        //     redirectToHome();
+        //     props.showError(null)
+        //   }
+        // });
       },
     
       onFailure: function(err) {
-        alert(err.message || JSON.stringify(err));
+        props.showError(err.message || JSON.stringify(err));
       },
     });
-
-
-    // axios.post(API_BASE_URL+'/user/login', payload)
-    //   .then(function (response) {
-    //     if(response.status === 200){
-    //       setState(prevState => ({
-    //         ...prevState,
-    //         'successMessage' : 'Login successful. Redirecting to home page..'
-    //       }))
-    //       localStorage.setItem(ACCESS_TOKEN_NAME,response.data.token);
-    //       redirectToHome();
-    //       props.showError(null)
-    //     }
-    //     else if(response.code === 204){
-    //       props.showError("Username and password do not match");
-    //     }
-    //     else{
-    //       props.showError("Username does not exists");
-    //     }
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
   }
 
   const redirectToHome = () => {
