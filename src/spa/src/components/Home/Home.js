@@ -1,11 +1,14 @@
 import React,{ useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
-import {ACCESS_TOKEN_NAME} from '../../constants/cognito';
+import {
+  COGNITO_ID_TOKEN,
+  // COGNITO_ACCESS_TOKEN,
+} from '../../constants/cognito';
 import logo from '../../images/salmoncow.png';
 
 function Home(props) {
 	useEffect(() => {
-		console.log(localStorage.getItem(ACCESS_TOKEN_NAME))
+		console.log(localStorage.getItem(COGNITO_ID_TOKEN))
 
 		// axios.get(API_BASE_URL+'/user/me', { headers: { 'token': localStorage.getItem(ACCESS_TOKEN_NAME) }})
 		// .then(function (response) {

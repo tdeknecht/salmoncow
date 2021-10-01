@@ -1,6 +1,11 @@
 import React, {useState} from 'react';
 import './LoginForm.css';
-import {USER_POOL_ID, CLIENT_ID, ACCESS_TOKEN_NAME} from '../../constants/cognito';
+import {
+  USER_POOL_ID,
+  CLIENT_ID,
+  COGNITO_ID_TOKEN,
+  COGNITO_ACCESS_TOKEN,
+} from '../../constants/cognito';
 import { withRouter } from "react-router-dom";
 
 function LoginForm(props) {
@@ -42,13 +47,16 @@ function LoginForm(props) {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function(result) {
+        const idToken = result.getIdToken().getJwtToken();
         const accessToken = result.getAccessToken().getJwtToken();
 
         setState(prevState => ({
           ...prevState,
           'successMessage' : 'Login successful. Redirecting to home page..'
         }))
-        localStorage.setItem(ACCESS_TOKEN_NAME,accessToken); //TODO: store in httpOnly cookie
+        localStorage.setItem(COGNITO_ID_TOKEN,idToken); //TODO: store in httpOnly cookie
+        localStorage.setItem(COGNITO_ACCESS_TOKEN,accessToken); //TODO: store in httpOnly cookie
+
         redirectToHome();
         props.showError(null)
     

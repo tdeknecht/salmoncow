@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { withRouter } from "react-router-dom";
 import './RegistrationForm.css';
 import {USER_POOL_ID, CLIENT_ID} from '../../constants/cognito';
 
@@ -115,4 +116,4 @@ function RegistrationForm(props) {
     </div>
   )
 }
-export default RegistrationForm;
+export default withRouter(RegistrationForm);
