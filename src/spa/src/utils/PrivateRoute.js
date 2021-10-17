@@ -9,7 +9,8 @@ function PrivateRoute({ children, ...rest }) {
   return (
     <Route
       {...rest}
-      render={({ location }) =>
+
+      render = {({ location }) =>
         localStorage.getItem(COGNITO_ID_TOKEN) ? (
           children
         ) : (
