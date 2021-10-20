@@ -236,4 +236,6 @@ module "federation" {
   tags     = local.tags
 }
 
+output "cognito_user_pool_id" { value = module.federation.user_pool_id }
 output "cognito_client_id" { value = module.federation.client_id }
+output "cognito_identity_pool_id" { value = module.federation.identity_pool_id }

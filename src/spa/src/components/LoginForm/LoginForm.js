@@ -1,12 +1,15 @@
 import React, {useState} from 'react';
 import './LoginForm.css';
 import {
-  USER_POOL_ID,
-  CLIENT_ID,
+  COGNITO_USER_POOL_ID,
+  COGNITO_CLIENT_ID,
   COGNITO_ID_TOKEN,
   COGNITO_ACCESS_TOKEN,
+  COGNITO_IDENTITY_POOL_ID,
+  AWS_REGION,
 } from '../../constants/cognito';
 import { withRouter } from "react-router-dom";
+import * as AWS from 'aws-sdk/global';
 
 function LoginForm(props) {
   const [state , setState] = useState({
@@ -30,13 +33,12 @@ function LoginForm(props) {
       "Password" : state.password,
     }
 
-    // use case 4
-    // simplified: https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html
+    // use case 4: https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html
     const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
     const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
     const poolData = {
-      UserPoolId: USER_POOL_ID,
-      ClientId: CLIENT_ID,
+      UserPoolId: COGNITO_USER_POOL_ID,
+      ClientId: COGNITO_CLIENT_ID,
     }
     const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
     const userData = {
@@ -47,45 +49,47 @@ function LoginForm(props) {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function(result) {
-        const idToken = result.getIdToken().getJwtToken();
         const accessToken = result.getAccessToken().getJwtToken();
+        const idToken = result.getIdToken().getJwtToken();
 
-        setState(prevState => ({
-          ...prevState,
-          'successMessage' : 'Login successful. Redirecting to home page..'
-        }))
-        localStorage.setItem(COGNITO_ID_TOKEN,idToken); //TODO: store in httpOnly cookie
-        localStorage.setItem(COGNITO_ACCESS_TOKEN,accessToken); //TODO: store in httpOnly cookie
+        // setState(prevState => ({
+        //   ...prevState,
+        //   'successMessage' : 'Login successful. Redirecting to home page..'
+        // }))
+        // localStorage.setItem(COGNITO_ID_TOKEN,idToken); //TODO: store in httpOnly cookie
+        // localStorage.setItem(COGNITO_ACCESS_TOKEN,accessToken); //TODO: store in httpOnly cookie
 
-        redirectToHome();
-        props.showError(null)
+        // redirectToHome();
+        // props.showError(null)
     
-        // AWS.config.region = AWS_REGION;
-        // AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-        //   IdentityPoolId: USER_POOL_ID,
-        //   Logins: {
-        //     ['cognito-idp.'+AWS_REGION+'.amazonaws.com/'+USER_POOL_ID]: result
-        //       .getIdToken()
-        //       .getJwtToken(),
-        //   },
-        // });
+        AWS.config.region = AWS_REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+          IdentityPoolId: COGNITO_IDENTITY_POOL_ID,
+          Logins: {
+            ['cognito-idp.' + AWS_REGION + '.amazonaws.com/' + COGNITO_USER_POOL_ID]: result
+              .getIdToken()
+              .getJwtToken(),
+          },
+        });
     
-        // //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
-        // AWS.config.credentials.refresh(error => {
-        //   if (error) {
-        //     console.error(error);
-        //   } else {
-        //     // Instantiate aws sdk service objects now that the credentials have been updated.
-        //     // example: var s3 = new AWS.S3();
-        //     setState(prevState => ({
-        //       ...prevState,
-        //       'successMessage' : 'Login successful. Redirecting to home page..'
-        //     }))
-        //     localStorage.setItem(ACCESS_TOKEN_NAME,accessToken);
-        //     redirectToHome();
-        //     props.showError(null)
-        //   }
-        // });
+        //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
+        AWS.config.credentials.refresh(error => {
+          if (error) {
+            console.error(error);
+          } else {
+            // Instantiate aws sdk service objects now that the credentials have been updated.
+            // example: var s3 = new AWS.S3();
+            setState(prevState => ({
+              ...prevState,
+              'successMessage' : 'Login successful. Redirecting to home page..'
+            }))
+            localStorage.setItem(COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
+            localStorage.setItem(COGNITO_ACCESS_TOKEN, accessToken); //TODO: store in httpOnly cookie
+    
+            redirectToHome();
+            props.showError(null)
+          }
+        });
       },
     
       onFailure: function(err) {

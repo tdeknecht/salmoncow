@@ -1,7 +1,10 @@
 import React, {useState} from 'react';
 import { withRouter } from "react-router-dom";
 import './RegistrationForm.css';
-import {USER_POOL_ID, CLIENT_ID} from '../../constants/cognito';
+import {
+  COGNITO_USER_POOL_ID,
+  COGNITO_CLIENT_ID
+} from '../../constants/cognito';
 
 function RegistrationForm(props) {
 
@@ -34,8 +37,8 @@ function RegistrationForm(props) {
   // use case 1
   const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
   const poolData = {
-    UserPoolId: USER_POOL_ID,
-    ClientId: CLIENT_ID,
+    UserPoolId: COGNITO_USER_POOL_ID,
+    ClientId: COGNITO_CLIENT_ID,
   }
   const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
   
