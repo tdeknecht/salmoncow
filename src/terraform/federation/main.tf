@@ -125,3 +125,33 @@ resource "aws_cognito_identity_pool_roles_attachment" "main" {
     "authenticated" = aws_iam_role.authenticated.arn
   }
 }
+
+# ------------------------------------------------------------------------------
+# generate file for spa constants
+# ------------------------------------------------------------------------------
+
+data "http" "cognito_jwks" {
+  url             = "https://cognito-idp.${var.tags.region}.amazonaws.com/${aws_cognito_user_pool.pool.id}/.well-known/jwks.json"
+  request_headers = {
+    Accept = "application/json"
+  }
+}
+
+resource "local_file" "spa" {
+  depends_on = [data.http.cognito_jwks]
+
+  filename = "../spa/src/constants/cognito.js"
+  content  = <<EOF
+export const AWS_REGION = '${var.tags.region}';
+
+export const COGNITO_USER_POOL_ID = '${aws_cognito_user_pool.pool.id}';
+export const COGNITO_CLIENT_ID = '${aws_cognito_user_pool_client.client.id}';
+export const COGNITO_IDENTITY_POOL_ID = '${aws_cognito_identity_pool.pool.id}';
+
+// https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
+export const COGNITO_PUB_JWKS = ${data.http.cognito_jwks.body}
+
+export const COGNITO_ID_TOKEN = 'cognito_id_token';
+export const COGNITO_ACCESS_TOKEN = 'cognito_access_token';
+EOF
+}
