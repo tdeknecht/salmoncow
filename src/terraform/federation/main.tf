@@ -149,7 +149,7 @@ export const COGNITO_CLIENT_ID = '${aws_cognito_user_pool_client.client.id}';
 export const COGNITO_IDENTITY_POOL_ID = '${aws_cognito_identity_pool.pool.id}';
 
 // https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
-export const COGNITO_PUB_JWKS = ${data.http.cognito_jwks.body}
+export const COGNITO_PUB_JWKS = ${data.http.cognito_jwks.body};
 
 export const COGNITO_ID_TOKEN = 'cognito_id_token';
 export const COGNITO_ACCESS_TOKEN = 'cognito_access_token';
