@@ -1,4 +1,12 @@
 # ------------------------------------------------------------------------------
+# data, variables, locals, etc.
+# ------------------------------------------------------------------------------
+
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_account_alias" "current" {}
+
+# ------------------------------------------------------------------------------
 # cognito user pool, client
 # Using configuration options as stated in the AWS tutorial
 # (https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html)
@@ -9,16 +17,21 @@ resource "aws_cognito_user_pool" "pool" {
   tags = var.tags
 
   username_attributes      = ["email"]
-  auto_verified_attributes = ["email"]
+  # auto_verified_attributes = ["email"]
 
   verification_message_template {
     email_subject = "Verification code for Salmoncow"
     email_message = "Your confirmation code is {####}. Welcome to Salmoncow!"
   }
 
+  lambda_config {
+    pre_sign_up = aws_lambda_function.pre_sign_up.arn
+  }
+
   account_recovery_setting {
     recovery_mechanism {
-      name     = "verified_email"
+      # name     = "verified_email"
+      name     = "admin_only"
       priority = 1
     }
   }
@@ -151,7 +164,7 @@ export const COGNITO_IDENTITY_POOL_ID = '${aws_cognito_identity_pool.pool.id}';
 // https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
 export const COGNITO_PUB_JWKS = ${data.http.cognito_jwks.body};
 
-export const COGNITO_ID_TOKEN = 'cognito_id_token';
-export const COGNITO_ACCESS_TOKEN = 'cognito_access_token';
+export const COGNITO_ID_TOKEN = null;
+export const COGNITO_ACCESS_TOKEN = null;
 EOF
 }
