@@ -140,6 +140,76 @@ resource "aws_cognito_identity_pool_roles_attachment" "main" {
 }
 
 # ------------------------------------------------------------------------------
+# Lambda: Pre sign-up
+# https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-pre-sign-up.html
+# ------------------------------------------------------------------------------
+
+data "archive_file" "lambda_function" {
+  type        = "zip"
+  source_file = "${path.module}/CognitoPreSignUpLambda.js"
+  output_path = "${path.module}/CognitoPreSignUpLambda.zip"
+}
+
+resource "aws_lambda_function" "pre_sign_up" {
+  function_name    = "${var.ou}-${data.aws_iam_account_alias.current.account_alias}-cognito-pre-sign-up"
+  description      = "Pre sign-up Lambda function for AWS Cognito"
+  architectures    = ["arm64"]
+  role             = aws_iam_role.pre_sign_up_role.arn # ec2 AssumeRole policy
+  handler          = "CognitoPreSignUpLambda.handler"
+  filename         = "${path.module}/CognitoPreSignUpLambda.zip"
+  source_code_hash = data.archive_file.lambda_function.output_base64sha256 # if using archive_file approach
+  runtime          = "nodejs14.x"
+  timeout          = "5"
+  tags             = var.tags
+}
+
+resource "aws_lambda_alias" "pre_sign_up_alias" {
+  name             = "${var.ou}_v1"
+  function_name    = aws_lambda_function.pre_sign_up.arn
+  function_version = aws_lambda_function.pre_sign_up.version
+}
+
+data "aws_iam_policy_document" "pre_sign_up_assumerole" {
+  statement {
+    sid     = "cognitoPreSignUpLambdaAssumeRole"
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+# lambda role
+resource "aws_iam_role" "pre_sign_up_role" {
+  name               = "${var.ou}-${data.aws_iam_account_alias.current.account_alias}-cognito-pre-sign-up-role"
+  assume_role_policy = data.aws_iam_policy_document.pre_sign_up_assumerole.json
+  tags               = var.tags
+}
+
+resource "aws_lambda_permission" "cognito" {
+   statement_id   = "allowCognitoInvoke"
+   action         = "lambda:InvokeFunction"
+   function_name  = aws_lambda_function.pre_sign_up.function_name
+   principal      = "cognito-idp.amazonaws.com"
+   source_account = data.aws_caller_identity.current.account_id
+   source_arn     = aws_cognito_user_pool.pool.arn
+}
+
+# lambdaBasicsExecutionRole policy attachment (allows writing to CloudWatch Logs)
+resource "aws_iam_role_policy_attachment" "lambda_basic_execution_policy_attachment" {
+  role       = aws_iam_role.pre_sign_up_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_cloudwatch_log_group" "pre_sign_up" {
+  name              = "/aws/lambda/${var.ou}-${data.aws_iam_account_alias.current.account_alias}-cognito-pre-sign-up"
+  retention_in_days = 7
+  tags              = var.tags
+}
+
+# ------------------------------------------------------------------------------
 # generate file for spa constants
 # ------------------------------------------------------------------------------
 
@@ -151,8 +221,6 @@ data "http" "cognito_jwks" {
 }
 
 resource "local_file" "spa" {
-  depends_on = [data.http.cognito_jwks]
-
   filename = "../spa/src/constants/cognito.js"
   content  = <<EOF
 export const AWS_REGION = '${var.tags.region}';
@@ -165,6 +233,5 @@ export const COGNITO_IDENTITY_POOL_ID = '${aws_cognito_identity_pool.pool.id}';
 export const COGNITO_PUB_JWKS = ${data.http.cognito_jwks.body};
 
 export const COGNITO_ID_TOKEN = null;
-export const COGNITO_ACCESS_TOKEN = null;
 EOF
 }
