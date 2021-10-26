@@ -28,6 +28,11 @@
   color: #61dafb;
 }
 
+.App-footer {
+  color: grey;
+  font-size: 9px;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

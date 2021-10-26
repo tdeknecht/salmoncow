@@ -9,4 +9,3 @@ export const COGNITO_PUB_JWKS = {"keys":[{"alg":"RS256","e":"AQAB","kid":"yEWksO
 ;
 
 export const COGNITO_ID_TOKEN = null;
-export const COGNITO_ACCESS_TOKEN = null;

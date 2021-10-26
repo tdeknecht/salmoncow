@@ -53,13 +53,6 @@ function LoginForm(props) {
       onSuccess: function(result) {
         const idToken = result.getIdToken().getJwtToken();
         localStorage.setItem(COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
-
-        // setState(prevState => ({
-        //   ...prevState,
-        //   'successMessage' : 'Login successful. Redirecting to home page..'
-        // }))
-        // redirectToHome();
-        // props.showError(null)
     
         AWS.config.region = AWS_REGION;
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -69,12 +62,14 @@ function LoginForm(props) {
           },
         });
     
-        //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
+        // refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
         AWS.config.credentials.refresh(err => {
           if (err) {
-            alert(err.message || JSON.stringify(err));
+            // alert(err.message || JSON.stringify(err)); // creates a popup box
+            props.showError(err.message || JSON.stringify(err))
             console.error(err);
           } else {
+
             // TODO: Instantiate aws sdk service objects now that the credentials have been updated.
             // example: var s3 = new AWS.S3();
 

@@ -10,8 +10,9 @@ import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
 import AlertComponent from './components/AlertComponent/AlertComponent'; 
-
 import PrivateRoute from './utils/PrivateRoute';
+
+import logo from './images/salmoncow.png';
 import {
   BrowserRouter as Router,
   Switch,
@@ -24,8 +25,9 @@ function App() {
   return (
     <Router>
     <div className="App">
-      <Header title={title}/>
+      <Header title={title} className="App-header"/>
         <div className="container d-flex align-items-center flex-column">
+        <img src={logo} className="App-logo" alt="logo" />
           <Switch>
             <Route path="/" exact={true}>
               <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle}/>
@@ -42,6 +44,10 @@ function App() {
           </Switch>
           <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage}/>
         </div>
+        &nbsp;
+        <p className="App-footer">
+          This is a dev site. Nothing will be saved. It's simply an experimental <a href="https://github.com/tdeknecht/salmoncow" target="_blank">side project</a>.
+        </p>
     </div>
     </Router>
   );

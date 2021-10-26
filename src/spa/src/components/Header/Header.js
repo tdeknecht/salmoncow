@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from "react-router-dom";
 import {
   COGNITO_ID_TOKEN,
-  COGNITO_ACCESS_TOKEN,
 } from '../../constants/cognito';
 
 function Header(props) {
@@ -24,8 +23,12 @@ function Header(props) {
     }
   }
   function handleLogout() {
+    // TODO: Find a way to truly log out, not just delete local token
+    // const { store } = this.context;
+    // const state = store.getState();
+    // state.cognito.user.signOut();
+
     localStorage.removeItem(COGNITO_ID_TOKEN)
-    localStorage.removeItem(COGNITO_ACCESS_TOKEN)
     props.history.push('/login')
   }
   return(

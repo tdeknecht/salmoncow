@@ -9,7 +9,7 @@ import {
 
 function RegistrationForm(props) {
 
-  const [state , setState] = useState({
+  const [state, setState] = useState({
     email : "",
     password : "",
     confirmPassword : ""
@@ -47,8 +47,7 @@ function RegistrationForm(props) {
 
         // confirmUser(result.user);
 
-        //TODO: If registration is successful authenticate user, get JWT, then redirectToHome()
-        //---
+        // TODO: If registration is successful authenticate user, get JWT, then redirectToHome()
         const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
 
         const payload={
@@ -74,8 +73,6 @@ function RegistrationForm(props) {
             const idToken = result.getIdToken().getJwtToken();
             localStorage.setItem(COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
 
-            console.log(idToken)
-
             setState(prevState => ({
               ...prevState,
               'successMessage' : 'Registration successful. Redirecting to home page..'
@@ -88,7 +85,6 @@ function RegistrationForm(props) {
             props.showError(err.message || JSON.stringify(err));
           },
         });
-        //---
 
         // setState(prevState => ({
         //   ...prevState,
@@ -119,10 +115,10 @@ function RegistrationForm(props) {
     props.history.push('/home');
   }
 
-  // const redirectToLogin = () => {
-  //   props.updateTitle('Login')
-  //   props.history.push('/login'); 
-  // }
+  const redirectToLogin = () => {
+    props.updateTitle('Login')
+    props.history.push('/login'); 
+  }
 
   const handleSubmitClick = (e) => {
     e.preventDefault();
@@ -179,6 +175,13 @@ function RegistrationForm(props) {
           Register
         </button>
       </form>
+      <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none' }} role="alert">
+        {state.successMessage}
+      </div>
+      <div className="mt-2">
+        <span>Already have an account? </span>
+        <span className="loginText" onClick={() => redirectToLogin()}>Login here</span> 
+      </div>
     </div>
   )
 }
