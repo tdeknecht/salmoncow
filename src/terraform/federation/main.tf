@@ -220,18 +220,18 @@ data "http" "cognito_jwks" {
   }
 }
 
-resource "local_file" "spa" {
-  filename = "../spa/src/constants/cognito.js"
+resource "local_file" "env" {
+  filename = "../spa/.env"
   content  = <<EOF
-export const AWS_REGION = '${var.tags.region}';
+REACT_APP_AWS_REGION = "${var.tags.region}"
 
-export const COGNITO_USER_POOL_ID = '${aws_cognito_user_pool.pool.id}';
-export const COGNITO_CLIENT_ID = '${aws_cognito_user_pool_client.client.id}';
-export const COGNITO_IDENTITY_POOL_ID = '${aws_cognito_identity_pool.pool.id}';
+REACT_APP_COGNITO_USER_POOL_ID = "${aws_cognito_user_pool.pool.id}"
+REACT_APP_COGNITO_CLIENT_ID = "${aws_cognito_user_pool_client.client.id}"
+REACT_APP_COGNITO_IDENTITY_POOL_ID = "${aws_cognito_identity_pool.pool.id}"
 
-// https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
-export const COGNITO_PUB_JWKS = ${data.http.cognito_jwks.body};
+# https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
+REACT_APP_COGNITO_PUB_JWKS = ${data.http.cognito_jwks.body}
 
-export const COGNITO_ID_TOKEN = null;
+REACT_APP_COGNITO_ID_TOKEN = ""
 EOF
 }
