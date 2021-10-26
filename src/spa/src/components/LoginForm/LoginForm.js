@@ -1,12 +1,5 @@
 import React, {useState} from 'react';
 import './LoginForm.css';
-import {
-  COGNITO_USER_POOL_ID,
-  COGNITO_CLIENT_ID,
-  COGNITO_ID_TOKEN,
-  COGNITO_IDENTITY_POOL_ID,
-  AWS_REGION,
-} from '../../constants/cognito';
 import { withRouter } from "react-router-dom";
 import * as AWS from 'aws-sdk/global';
 
@@ -38,8 +31,8 @@ function LoginForm(props) {
     const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
 
     const poolData = {
-      UserPoolId: COGNITO_USER_POOL_ID,
-      ClientId: COGNITO_CLIENT_ID,
+      UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
     }
     const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
@@ -52,13 +45,13 @@ function LoginForm(props) {
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function(result) {
         const idToken = result.getIdToken().getJwtToken();
-        localStorage.setItem(COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
+        localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
     
-        AWS.config.region = AWS_REGION;
+        AWS.config.region = process.env.REACT_APP_AWS_REGION;
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: COGNITO_IDENTITY_POOL_ID,
+          IdentityPoolId: process.env.REACT_APP_COGNITO_IDENTITY_POOL_ID,
           Logins: {
-            ['cognito-idp.' + AWS_REGION + '.amazonaws.com/' + COGNITO_USER_POOL_ID] : result.getIdToken().getJwtToken(),
+            ['cognito-idp.' + process.env.REACT_APP_AWS_REGION + '.amazonaws.com/' + process.env.REACT_APP_COGNITO_USER_POOL_ID] : result.getIdToken().getJwtToken(),
           },
         });
     

@@ -1,8 +1,5 @@
 import React,{ useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
-// import {
-//   COGNITO_ID_TOKEN,
-// } from '../../constants/cognito';
 
 function Home(props) {
 	useEffect(() => {

@@ -1,9 +1,5 @@
 import React from 'react';
 import { Redirect, Route } from "react-router-dom";
-import {
-  COGNITO_ID_TOKEN,
-  // COGNITO_ACCESS_TOKEN,
-} from '../constants/cognito';
 
 function PrivateRoute({ children, ...rest }) {
   return (
@@ -11,7 +7,7 @@ function PrivateRoute({ children, ...rest }) {
       {...rest}
 
       render = {({ location }) =>
-        localStorage.getItem(COGNITO_ID_TOKEN) ? (
+        localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN) ? (
           children
         ) : (
           <Redirect

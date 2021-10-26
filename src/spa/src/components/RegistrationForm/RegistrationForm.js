@@ -1,11 +1,6 @@
 import React, {useState} from 'react';
 import { withRouter } from "react-router-dom";
 import './RegistrationForm.css';
-import {
-  COGNITO_USER_POOL_ID,
-  COGNITO_CLIENT_ID,
-  COGNITO_ID_TOKEN,
-} from '../../constants/cognito';
 
 function RegistrationForm(props) {
 
@@ -27,8 +22,8 @@ function RegistrationForm(props) {
   // use case 1: Registering a user with the application
   const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
   const poolData = {
-    UserPoolId: COGNITO_USER_POOL_ID,
-    ClientId: COGNITO_CLIENT_ID,
+    UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+    ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
   }
   const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
   
@@ -41,13 +36,11 @@ function RegistrationForm(props) {
       result,
     ) {
       if (err) {
-        // alert(err.message || JSON.stringify(err));
         props.showError(err.message || JSON.stringify(err));
       } else {
 
         // confirmUser(result.user);
 
-        // TODO: If registration is successful authenticate user, get JWT, then redirectToHome()
         const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
 
         const payload={
@@ -55,12 +48,6 @@ function RegistrationForm(props) {
           "Password" : state.password,
         }
         const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
-    
-        const poolData = {
-          UserPoolId: COGNITO_USER_POOL_ID,
-          ClientId: COGNITO_CLIENT_ID,
-        }
-        const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
         
         const userData = {
           Username: state.email,
@@ -71,7 +58,7 @@ function RegistrationForm(props) {
         cognitoUser.authenticateUser(authenticationDetails, {
           onSuccess: function(result) {
             const idToken = result.getIdToken().getJwtToken();
-            localStorage.setItem(COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
+            localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
 
             setState(prevState => ({
               ...prevState,

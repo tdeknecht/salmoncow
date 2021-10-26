@@ -22,6 +22,9 @@ import {
 function App() {
   const [title, updateTitle] = useState(null);
   const [errorMessage, updateErrorMessage] = useState(null);
+
+  console.log(JSON.parse(process.env.REACT_APP_COGNITO_PUB_JWKS)['keys'][0]['kid'])
+
   return (
     <Router>
     <div className="App">
@@ -46,7 +49,7 @@ function App() {
         </div>
         &nbsp;
         <p className="App-footer">
-          This is a dev site. Nothing will be saved. It's simply an experimental <a href="https://github.com/tdeknecht/salmoncow" target="_blank">side project</a>.
+          This is a dev site. Nothing will be saved. It's simply an experimental <a href="https://github.com/tdeknecht/salmoncow" target="_blank" rel="noopener noreferrer">side project</a>.
         </p>
     </div>
     </Router>

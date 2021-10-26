@@ -1,8 +1,5 @@
 import React from 'react';
 import { withRouter } from "react-router-dom";
-import {
-  COGNITO_ID_TOKEN,
-} from '../../constants/cognito';
 
 function Header(props) {
   const capitalize = (s) => {
@@ -28,7 +25,7 @@ function Header(props) {
     // const state = store.getState();
     // state.cognito.user.signOut();
 
-    localStorage.removeItem(COGNITO_ID_TOKEN)
+    localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
     props.history.push('/login')
   }
   return(
