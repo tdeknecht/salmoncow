@@ -1,8 +1,11 @@
 import React, {useState} from 'react';
-import { withRouter } from "react-router-dom";
+import { withRouter } from 'react-router-dom';
 import './RegistrationForm.css';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 function RegistrationForm(props) {
+
+  const recaptchaRef = React.createRef();
 
   const [state, setState] = useState({
     email : "",
@@ -27,16 +30,20 @@ function RegistrationForm(props) {
   }
   const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
   
-  const awsCognitoSignUp = (formData) => {
+  const awsCognitoSignUp = (p) => {
     const attributes = [
       // { Name: 'name', Value: formData.name }
     ]
-    userPool.signUp(formData.email, formData.password, attributes, null, function(
+    userPool.signUp(p.email, p.password, attributes, p.validationData, function(
       err,
       result,
     ) {
       if (err) {
-        props.showError(err.message || JSON.stringify(err));
+        if (err.name == 'UserLambdaValidationException') {
+          props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
+        } else {
+          props.showError(err.message || JSON.stringify(err))
+        }
       } else {
 
         // confirmUser(result.user);
@@ -62,7 +69,7 @@ function RegistrationForm(props) {
 
             setState(prevState => ({
               ...prevState,
-              'successMessage' : 'Registration successful. Redirecting to home page..'
+              'successMessage' : 'Registration successful. Redirecting to home page...'
             }))
             redirectToHome();
             props.showError(null)
@@ -109,10 +116,20 @@ function RegistrationForm(props) {
 
   const handleSubmitClick = (e) => {
     e.preventDefault();
+
+    const recaptchaToken = recaptchaRef.current.getValue();
+
+    // if (recaptchaToken === "") {
+    //   props.showError('Are you a robot?')
+    // }
     if(state.password === state.confirmPassword) {
       awsCognitoSignUp({
         email: state.email, 
-        password: state.password
+        password: state.password,
+        validationData: [{
+          Name: 'recaptchaToken',
+          Value: recaptchaToken,
+        }],
       });
     } else {
       props.showError('Passwords do not match');
@@ -121,7 +138,7 @@ function RegistrationForm(props) {
 
   return(
     <div className="card col-12 col-lg-4 login-card mt-2 hv-center">
-      <form>
+      <form> 
         <div className="form-group text-left">
         <label htmlFor="exampleInputEmail1">Email address</label>
         <input type="email" 
@@ -152,6 +169,12 @@ function RegistrationForm(props) {
             placeholder="Confirm Password"
             value={state.confirmPassword}
             onChange={handleChange} 
+          />
+        </div>
+        <div className="Re-captcha">
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
           />
         </div>
         <button 

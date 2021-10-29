@@ -23,8 +23,6 @@ function App() {
   const [title, updateTitle] = useState(null);
   const [errorMessage, updateErrorMessage] = useState(null);
 
-  console.log(JSON.parse(process.env.REACT_APP_COGNITO_PUB_JWKS)['keys'][0]['kid'])
-
   return (
     <Router>
     <div className="App">

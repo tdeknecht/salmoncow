@@ -68,7 +68,7 @@ function LoginForm(props) {
 
             setState(prevState => ({
               ...prevState,
-              'successMessage' : 'Login successful. Redirecting to home page..'
+              'successMessage' : 'Login successful. Redirecting to home page...'
             }))
             redirectToHome();
             props.showError(null)
