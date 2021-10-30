@@ -29,10 +29,10 @@ jobs:
       - name: Set up tfvars
         working-directory: ./src/terraform
         id: vars
-          run: |
+          run: |-
             cat > pipeline.auto.tfvars <<EOF
-            recaptcha_secret_key=$TF_VAR_RECAPTCHA_SECRET_KEY
-            recaptcha_site_key=$TF_VAR_RECAPTCHA_SITE_KEY
+            recaptcha_secret_key="${{secrets.TF_VAR_RECAPTCHA_SECRET_KEY}}"
+            recaptcha_site_key="${{secrets.TF_VAR_RECAPTCHA_SITE_KEY}}"
             EOF
 
       - name: Terraform INIT and PLAN
