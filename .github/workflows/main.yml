@@ -16,7 +16,6 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
         TF_VAR_RECAPTCHA_SECRET_KEY: ${{secrets.TF_VAR_RECAPTCHA_SECRET_KEY}}
         TF_VAR_RECAPTCHA_SITE_KEY: ${{secrets.TF_VAR_RECAPTCHA_SITE_KEY}}
-        HELLO_WORLD: ${{secrets.TEST}}
 
     steps:
       - uses: actions/checkout@v1
@@ -27,9 +26,17 @@ jobs:
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
 
+      - name: Set up tfvars
+        working-directory: ./src/terraform
+        id: vars
+          run: |
+            cat > pipeline.auto.tfvars <<EOF
+            recaptcha_secret_key=$TF_VAR_RECAPTCHA_SECRET_KEY
+            recaptcha_site_key=$TF_VAR_RECAPTCHA_SITE_KEY
+            EOF
+
       - name: Terraform INIT and PLAN
         run: |
-          echo $HELLO_WORLD
           cd src/terraform
           terraform -version
           terraform init
