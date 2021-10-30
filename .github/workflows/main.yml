@@ -23,13 +23,13 @@ jobs:
 
       - name: Set AWS credentials
         run: |
-          echo $HELLO_WORLD
           aws --version
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
 
       - name: Terraform INIT and PLAN
         run: |
+          echo $HELLO_WORLD
           cd src/terraform
           terraform -version
           terraform init
