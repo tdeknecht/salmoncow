@@ -144,10 +144,14 @@ resource "aws_cognito_identity_pool_roles_attachment" "main" {
 # https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-pre-sign-up.html
 # ------------------------------------------------------------------------------
 
+locals {
+  lambda_file_name = "cognito-pre-sign-up-lambda"
+}
+
 data "archive_file" "lambda_function" {
   type        = "zip"
-  source_file = "${path.module}/CognitoPreSignUpLambda.js"
-  output_path = "${path.module}/CognitoPreSignUpLambda.zip"
+  source_file = "${path.module}/${local.lambda_file_name}.py"
+  output_path = "${path.module}/${local.lambda_file_name}.zip"
 }
 
 resource "aws_lambda_function" "pre_sign_up" {
@@ -155,12 +159,18 @@ resource "aws_lambda_function" "pre_sign_up" {
   description      = "Pre sign-up Lambda function for AWS Cognito"
   architectures    = ["arm64"]
   role             = aws_iam_role.pre_sign_up_role.arn # ec2 AssumeRole policy
-  handler          = "CognitoPreSignUpLambda.handler"
-  filename         = "${path.module}/CognitoPreSignUpLambda.zip"
+  handler          = "${local.lambda_file_name}.lambda_handler"
+  filename         = "${path.module}/${local.lambda_file_name}.zip"
   source_code_hash = data.archive_file.lambda_function.output_base64sha256 # if using archive_file approach
-  runtime          = "nodejs14.x"
+  runtime          = "python3.8"
   timeout          = "5"
   tags             = var.tags
+
+  environment {
+    variables = {
+      recaptcha_secret_key = var.recaptcha.secret_key
+    }
+  }
 }
 
 resource "aws_lambda_alias" "pre_sign_up_alias" {
@@ -223,15 +233,16 @@ data "http" "cognito_jwks" {
 resource "local_file" "env" {
   filename = "../spa/.env"
   content  = <<EOF
-REACT_APP_AWS_REGION = "${var.tags.region}"
+REACT_APP_AWS_REGION="${var.tags.region}"
 
-REACT_APP_COGNITO_USER_POOL_ID = "${aws_cognito_user_pool.pool.id}"
-REACT_APP_COGNITO_CLIENT_ID = "${aws_cognito_user_pool_client.client.id}"
-REACT_APP_COGNITO_IDENTITY_POOL_ID = "${aws_cognito_identity_pool.pool.id}"
+REACT_APP_COGNITO_USER_POOL_ID="${aws_cognito_user_pool.pool.id}"
+REACT_APP_COGNITO_CLIENT_ID="${aws_cognito_user_pool_client.client.id}"
+REACT_APP_COGNITO_IDENTITY_POOL_ID="${aws_cognito_identity_pool.pool.id}"
 
 # https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
-REACT_APP_COGNITO_PUB_JWKS = ${data.http.cognito_jwks.body}
+REACT_APP_COGNITO_PUB_JWKS=${data.http.cognito_jwks.body}
+REACT_APP_COGNITO_ID_TOKEN=""
 
-REACT_APP_COGNITO_ID_TOKEN = ""
+REACT_APP_RECAPTCHA_SITE_KEY="${var.recaptcha.site_key}"
 EOF
 }

@@ -229,11 +229,15 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow" {
 module "federation" {
   source = "./federation"
 
-  ou       = var.ou
-  use_case = var.use_case
-  tenant   = var.tenant
+  ou        = var.ou
+  use_case  = var.use_case
+  tenant    = var.tenant
+  recaptcha = { # https://www.google.com/recaptcha/admin
+    site_key   = var.recaptcha_site_key,
+    secret_key = var.recaptcha_secret_key,
+  }
 
-  tags     = local.tags
+  tags = local.tags
 }
 
 output "cognito_user_pool_id" { value = module.federation.user_pool_id }

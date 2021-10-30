@@ -17,3 +17,11 @@ variable "use_case" {
 variable "tenant" {
   type = string
 }
+
+variable "recaptcha_secret_key" {
+  type = string
+}
+
+variable "recaptcha_site_key" {
+  type = string
+}
