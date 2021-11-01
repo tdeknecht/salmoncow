@@ -46,8 +46,6 @@ function RegistrationForm(props) {
         }
       } else {
 
-        // confirmUser(result.user);
-
         const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
 
         const payload={
@@ -80,13 +78,6 @@ function RegistrationForm(props) {
           },
         });
 
-        // setState(prevState => ({
-        //   ...prevState,
-        //   'successMessage' : 'Registration successful. Redirecting to home page..'
-        // }))
-        // redirectToHome();
-        // props.showError(null)
-
         // confirmUser(result.user);
       }
     });
@@ -114,15 +105,14 @@ function RegistrationForm(props) {
     props.history.push('/login'); 
   }
 
-  const handleSubmitClick = (e) => {
+  const onClick = (e) => {
     e.preventDefault();
 
     const recaptchaToken = recaptchaRef.current.getValue();
 
-    // if (recaptchaToken === "") {
-    //   props.showError('Are you a robot?')
-    // }
-    if(state.password === state.confirmPassword) {
+    if (recaptchaToken === "") {
+      props.showError('Are you a robot?')
+    } else if(state.password === state.confirmPassword) {
       awsCognitoSignUp({
         email: state.email, 
         password: state.password,
@@ -180,7 +170,7 @@ function RegistrationForm(props) {
         <button 
           type="submit" 
           className="btn btn-primary"
-          onClick={handleSubmitClick}
+          onClick={onClick}
         >
           Register
         </button>
