@@ -3,6 +3,9 @@ import { withRouter } from 'react-router-dom';
 import './RegistrationForm.css';
 import ReCAPTCHA from 'react-google-recaptcha';
 
+import Loader from "../Loader/Loader";
+// import { useSpring, animated } from 'react-spring';
+
 function RegistrationForm(props) {
 
   const recaptchaRef = React.createRef();
@@ -39,7 +42,7 @@ function RegistrationForm(props) {
       result,
     ) {
       if (err) {
-        if (err.name == 'UserLambdaValidationException') {
+        if (err.name === 'UserLambdaValidationException') {
           props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
         } else {
           props.showError(err.message || JSON.stringify(err))
@@ -105,8 +108,9 @@ function RegistrationForm(props) {
     props.history.push('/login'); 
   }
 
-  const onClick = (e) => {
-    e.preventDefault();
+  const onClick = () => {
+  // const onClick = (e) => {
+    // e.preventDefault();
 
     const recaptchaToken = recaptchaRef.current.getValue();
 
@@ -124,6 +128,18 @@ function RegistrationForm(props) {
     } else {
       props.showError('Passwords do not match');
     }
+  }
+
+  // Registration Button
+  const [disableButton, setDisableButton] = React.useState(false);
+  const [isButtonLoading, setIsButtonLoading] = React.useState(false);
+
+  function Button({ isLoading, children, ...props }) {
+    return (
+      <button disabled={disableButton} className="btn btn-primary" {...props}>
+        {isLoading ? <Loader /> : children}
+      </button>
+    );
   }
 
   return(
@@ -167,13 +183,29 @@ function RegistrationForm(props) {
             sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
           />
         </div>
-        <button 
+        {/* <button 
           type="submit" 
           className="btn btn-primary"
           onClick={onClick}
         >
           Register
-        </button>
+        </button> */}
+        <Button
+          onClick={(e) => {
+            e.preventDefault();
+            setIsButtonLoading(true);
+            setDisableButton(true);
+            onClick();
+
+            // remove timeout for normal button. this just helps with testing...
+            // setTimeout(() => {
+            //     setIsButtonLoading(false);
+            //   }, 1000);
+            }}
+          isLoading={isButtonLoading}
+        >
+          Register
+        </Button>
       </form>
       <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none' }} role="alert">
         {state.successMessage}
