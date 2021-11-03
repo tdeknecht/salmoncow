@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import './LoginForm.css';
 import { withRouter } from "react-router-dom";
 import * as AWS from 'aws-sdk/global';
+import LoaderButton from "../LoaderButton/LoaderButton"
 
 function LoginForm(props) {
   const [state , setState] = useState({
@@ -18,26 +19,28 @@ function LoginForm(props) {
     }))
   }
 
-  const handleSubmitClick = (e) => {
-    e.preventDefault();
+  // Login Button
+  const [disableButton, setDisableButton] = React.useState(false); //https://sebhastian.com/react-disable-button/
+  const [isButtonLoading, setIsButtonLoading] = React.useState(false);
 
-    // use case 4: https://docs.aws.amazon.com/cognito/latest/developerguide/authentication.html
-    const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
+  // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
+  const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
+  const poolData = {
+    UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+    ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+  }
+  const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
+  // Use case 4. Authenticating a user and establishing a user session with the Amazon Cognito Identity service.
+  const awsCognitoLogin = (p) => {
     const payload={
-      "Username" : state.email,
-      "Password" : state.password,
+      "Username" : p.email,
+      "Password" : p.password,
     }
     const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
 
-    const poolData = {
-      UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-    }
-    const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-
     const userData = {
-      Username: state.email,
+      Username: p.email,
       Pool: userPool,
     };
     const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
@@ -58,7 +61,6 @@ function LoginForm(props) {
         // refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
         AWS.config.credentials.refresh(err => {
           if (err) {
-            // alert(err.message || JSON.stringify(err)); // creates a popup box
             props.showError(err.message || JSON.stringify(err))
             console.error(err);
           } else {
@@ -78,6 +80,8 @@ function LoginForm(props) {
     
       onFailure: function(err) {
         props.showError(err.message || JSON.stringify(err));
+        setIsButtonLoading(false);
+        setDisableButton(false);
       },
     });
   }
@@ -90,6 +94,18 @@ function LoginForm(props) {
   const redirectToRegister = () => {
     props.history.push('/register'); 
     props.updateTitle('Register');
+  }
+
+  const onClick = (e) => {
+    e.preventDefault();
+
+    setIsButtonLoading(true);
+    setDisableButton(true);
+
+    awsCognitoLogin({
+      email: state.email, 
+      password: state.password,
+    });
   }
 
   return(
@@ -119,11 +135,13 @@ function LoginForm(props) {
         </div>
         <div className="form-check">
         </div>
-        <button 
-          type="submit" 
-          className="btn btn-primary"
-          onClick={handleSubmitClick}
-        >Submit</button>
+        <LoaderButton
+          onClick={onClick}
+          isLoading={isButtonLoading}
+          disableButton={disableButton}
+        >
+          Login
+        </LoaderButton>
       </form>
       <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none' }} role="alert">
         {state.successMessage}

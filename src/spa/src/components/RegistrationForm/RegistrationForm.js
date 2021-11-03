@@ -2,14 +2,9 @@ import React, {useState} from 'react';
 import { withRouter } from 'react-router-dom';
 import './RegistrationForm.css';
 import ReCAPTCHA from 'react-google-recaptcha';
-
-import Loader from "../Loader/Loader";
-// import { useSpring, animated } from 'react-spring';
+import LoaderButton from "../LoaderButton/LoaderButton"
 
 function RegistrationForm(props) {
-
-  const recaptchaRef = React.createRef();
-
   const [state, setState] = useState({
     email : "",
     password : "",
@@ -24,15 +19,21 @@ function RegistrationForm(props) {
     }))
   }
 
+  // Registration Button
+  const [disableButton, setDisableButton] = React.useState(false); //https://sebhastian.com/react-disable-button/
+  const [isButtonLoading, setIsButtonLoading] = React.useState(false);
+
+  const recaptchaRef = React.createRef();
+
   // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-  // use case 1: Registering a user with the application
   const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
   const poolData = {
     UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
     ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
   }
   const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-  
+
+  // Use case 1. Registering a user with the application.
   const awsCognitoSignUp = (p) => {
     const attributes = [
       // { Name: 'name', Value: formData.name }
@@ -48,8 +49,6 @@ function RegistrationForm(props) {
           props.showError(err.message || JSON.stringify(err))
         }
       } else {
-
-        const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
 
         const payload={
           "Username" : state.email,
@@ -108,9 +107,11 @@ function RegistrationForm(props) {
     props.history.push('/login'); 
   }
 
-  const onClick = () => {
-  // const onClick = (e) => {
-    // e.preventDefault();
+  const onClick = (e) => {
+    e.preventDefault();
+
+    setIsButtonLoading(true);
+    setDisableButton(true);
 
     const recaptchaToken = recaptchaRef.current.getValue();
 
@@ -128,18 +129,6 @@ function RegistrationForm(props) {
     } else {
       props.showError('Passwords do not match');
     }
-  }
-
-  // Registration Button
-  const [disableButton, setDisableButton] = React.useState(false);
-  const [isButtonLoading, setIsButtonLoading] = React.useState(false);
-
-  function Button({ isLoading, children, ...props }) {
-    return (
-      <button disabled={disableButton} className="btn btn-primary" {...props}>
-        {isLoading ? <Loader /> : children}
-      </button>
-    );
   }
 
   return(
@@ -183,29 +172,13 @@ function RegistrationForm(props) {
             sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
           />
         </div>
-        {/* <button 
-          type="submit" 
-          className="btn btn-primary"
+        <LoaderButton
           onClick={onClick}
-        >
-          Register
-        </button> */}
-        <Button
-          onClick={(e) => {
-            e.preventDefault();
-            setIsButtonLoading(true);
-            setDisableButton(true);
-            onClick();
-
-            // remove timeout for normal button. this just helps with testing...
-            // setTimeout(() => {
-            //     setIsButtonLoading(false);
-            //   }, 1000);
-            }}
           isLoading={isButtonLoading}
+          disableButton={disableButton}
         >
           Register
-        </Button>
+        </LoaderButton>
       </form>
       <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none' }} role="alert">
         {state.successMessage}
