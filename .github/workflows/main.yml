@@ -1,9 +1,9 @@
 name: CI
 
-on:
-  push:
-  # pull_request:
-  #   branches: [ master ]
+# on:
+#   push:
+#   pull_request:
+#     branches: [ main ]
 
 jobs:
   build-infra:
@@ -43,19 +43,14 @@ jobs:
           terraform plan
 
       - name: Terraform APPLY
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: |
           cd src/terraform
           terraform apply -auto-approve
 
-  build-app:
+  deploy-app:
     runs-on: ubuntu-latest
-
-    # container: 
-    #   image: tdeknecht/aws:latest
-    #   env:
-    #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-    #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+    trigger: main
 
     steps:
       - uses: actions/checkout@v1
@@ -66,9 +61,13 @@ jobs:
           aws configure set aws_access_key_id ${{secrets.AWS_ACCESS_KEY_ID}}
           aws configure set aws_secret_access_key ${{secrets.AWS_SECRET_ACCESS_KEY}}
           aws configure set region us-east-1
-      
-      - name: Copy src/www
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+      - name: Build app
         run: |
-          cd src/www
-          aws s3 sync . s3://salmoncow.com --delete
+          cd src/spa
+          npm install
+          npm run build
+      
+      - name: Copy files
+        run: |
+          aws s3 sync ./build s3://salmoncow.com --delete
