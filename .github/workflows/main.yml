@@ -1,14 +1,9 @@
 name: CI
-
-on:
-  push:
-#   pull_request:
-#     branches: [ main ]
+on: [push]
 
 jobs:
   build-infra:
     runs-on: ubuntu-latest
-
     container: 
       image: tdeknecht/aws:latest
       env:
@@ -50,7 +45,8 @@ jobs:
 
   deploy-app:
     runs-on: ubuntu-latest
-    trigger: main
+    on:
+      push: [main]
 
     steps:
       - uses: actions/checkout@v1
