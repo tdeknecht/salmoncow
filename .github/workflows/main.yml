@@ -45,8 +45,8 @@ jobs:
 
   deploy-app:
     runs-on: ubuntu-latest
-    on:
-      push: [main]
+    needs: [build-infra]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
     steps:
       - uses: actions/checkout@v1
