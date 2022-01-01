@@ -1,0 +1,5 @@
+# terraform
+.terraform/
+*.zip
+/**/*.zip
+pipeline.auto.tfvars

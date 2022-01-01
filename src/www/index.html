@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title>Salmoncow</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+
+    <!-- Load React. -->
+    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+   </head>
+
+  <body>
+    <script src="js/amazon-cognito-identity.min.js"></script>
+
+    <div style="text-align: center;">
+      <img src="images/salmoncow.png" style="max-width:100%; height:auto">
+    </div>
+
+    <div id="moo" style="text-align: center;"></div>
+
+    <form style="width: 225px; margin: 0 auto;" id="sign-up-form">
+      <div style="text-align: center;">
+        <p>
+          <input type="text" name="email" placeholder="Email" required>
+        </p>
+        <p>
+          <input type="password" name="password" placeholder="Password" required>
+        </p>
+        <button>Sign up</button>
+      </div>
+    </form>
+
+    <script src="js/script.js"></script>
+    <script src="js/react.js"></script>
+
+  </body>
+</html>
