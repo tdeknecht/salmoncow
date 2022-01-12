@@ -119,6 +119,15 @@ resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
     }
   }
 
+  # required for React SPA because /paths don't exist as objects in S3, thus a custom error
+  # response is required to redirect a 403 to /index.html as a 200
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/index.html"
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "none"
