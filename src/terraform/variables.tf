@@ -18,6 +18,6 @@ variable "tenant" {
   type = string
 }
 
-variable "foo" {
+variable "recaptcha_secret_key" {
   type = string
 }

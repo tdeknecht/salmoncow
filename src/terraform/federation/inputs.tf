@@ -13,7 +13,3 @@ variable "tenant" {
 variable "tags" {
   type = map(any)
 }
-
-variable "recaptcha" {
-  type = map(string)
-}
