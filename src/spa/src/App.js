@@ -26,24 +26,21 @@ function App() {
   return (
     <Router>
     <div className="App">
-      <Header title={title} className="App-header"/>
+      <Header title={title} className="App-header" updateTitle={updateTitle} />
         <div className="container d-flex align-items-center flex-column">
         <img src={logo} className="App-logo" alt="logo" />
           <Switch>
-            <Route path="/" exact={true}>
-              <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle}/>
-            </Route>
             <Route path="/register">
-              <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle}/>
+              <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle} />
             </Route>
             <Route path="/login">
-              <LoginForm showError={updateErrorMessage} updateTitle={updateTitle}/>
+              <LoginForm showError={updateErrorMessage} updateTitle={updateTitle} />
             </Route>
-            <PrivateRoute path="/home">
-              <Home/>
+            <PrivateRoute path="/">
+              <Home />
             </PrivateRoute>
           </Switch>
-          <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage}/>
+          <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage} />
         </div>
         &nbsp;
         <p className="App-footer">

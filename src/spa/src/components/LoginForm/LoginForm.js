@@ -48,7 +48,7 @@ function LoginForm(props) {
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function(result) {
         const idToken = result.getIdToken().getJwtToken();
-        localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
+        localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken);
     
         AWS.config.region = process.env.REACT_APP_AWS_REGION;
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -65,7 +65,7 @@ function LoginForm(props) {
             console.error(err);
           } else {
 
-            // TODO: Instantiate aws sdk service objects now that the credentials have been updated.
+            // Instantiate aws sdk service objects now that the credentials have been updated.
             // example: var s3 = new AWS.S3();
 
             setState(prevState => ({
@@ -88,12 +88,12 @@ function LoginForm(props) {
 
   const redirectToHome = () => {
     props.updateTitle('Home')
-    props.history.push('/home');
+    props.history.push('/');
   }
 
   const redirectToRegister = () => {
-    props.history.push('/register'); 
     props.updateTitle('Register');
+    props.history.push('/register'); 
   }
 
   const onClick = (e) => {

@@ -7,11 +7,13 @@ function Header(props) {
       return s.charAt(0).toUpperCase() + s.slice(1)
   }
   let title = capitalize(props.location.pathname.substring(1,props.location.pathname.length))
+
   if(props.location.pathname === '/') {
     title = 'Welcome'
   }
+
   function renderLogout() {
-    if(props.location.pathname === '/home'){
+    if(props.location.pathname === '/'){
       return(
         <div className="ml-auto">
           <button className="btn btn-danger" onClick={() => handleLogout()}>Logout</button>
@@ -19,6 +21,7 @@ function Header(props) {
       )
     }
   }
+
   function handleLogout() {
     // TODO: Find a way to truly log out, not just delete local token
     // const { store } = this.context;
@@ -26,8 +29,10 @@ function Header(props) {
     // state.cognito.user.signOut();
 
     localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
+    props.updateTitle('Login')
     props.history.push('/login')
   }
+
   return(
     <nav className="navbar navbar-dark bg-primary">
       <div className="row col-12 d-flex justify-content-center text-white">
