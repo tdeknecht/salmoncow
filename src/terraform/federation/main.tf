@@ -229,20 +229,3 @@ data "http" "cognito_jwks" {
     Accept = "application/json"
   }
 }
-
-resource "local_file" "env" {
-  filename = "../spa/.env"
-  content  = <<EOF
-REACT_APP_AWS_REGION="${var.tags.region}"
-
-REACT_APP_COGNITO_USER_POOL_ID="${aws_cognito_user_pool.pool.id}"
-REACT_APP_COGNITO_CLIENT_ID="${aws_cognito_user_pool_client.client.id}"
-REACT_APP_COGNITO_IDENTITY_POOL_ID="${aws_cognito_identity_pool.pool.id}"
-
-# https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
-REACT_APP_COGNITO_PUB_JWKS=${data.http.cognito_jwks.body}
-REACT_APP_COGNITO_ID_TOKEN=""
-
-REACT_APP_RECAPTCHA_SITE_KEY="${var.recaptcha.site_key}"
-EOF
-}
