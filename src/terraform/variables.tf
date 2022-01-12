@@ -21,7 +21,3 @@ variable "tenant" {
 variable "recaptcha_secret_key" {
   type = string
 }
-
-variable "recaptcha_site_key" {
-  type = string
-}

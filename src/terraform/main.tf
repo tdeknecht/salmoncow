@@ -242,7 +242,6 @@ module "federation" {
   use_case  = var.use_case
   tenant    = var.tenant
   recaptcha = { # https://www.google.com/recaptcha/admin
-    site_key   = var.recaptcha_site_key,
     secret_key = var.recaptcha_secret_key,
   }
 
