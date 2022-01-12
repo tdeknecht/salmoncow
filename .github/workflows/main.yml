@@ -26,7 +26,7 @@ jobs:
         id: vars
         run: |
           cat > pipeline.auto.tfvars <<EOF
-          recaptcha_secret_key="${{secrets.TF_VAR_FOO}}"
+          foo="${{secrets.TF_VAR_FOO}}"
           EOF
 
       - name: Terraform INIT and PLAN
