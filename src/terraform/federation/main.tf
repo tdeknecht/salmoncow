@@ -218,14 +218,3 @@ resource "aws_cloudwatch_log_group" "pre_sign_up" {
   retention_in_days = 7
   tags              = var.tags
 }
-
-# ------------------------------------------------------------------------------
-# generate file for spa constants
-# ------------------------------------------------------------------------------
-
-data "http" "cognito_jwks" {
-  url             = "https://cognito-idp.${var.tags.region}.amazonaws.com/${aws_cognito_user_pool.pool.id}/.well-known/jwks.json"
-  request_headers = {
-    Accept = "application/json"
-  }
-}
