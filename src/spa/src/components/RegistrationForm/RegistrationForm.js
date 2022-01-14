@@ -46,6 +46,8 @@ function RegistrationForm(props) {
         if (err.name === 'UserLambdaValidationException') {
           props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
         } else {
+          setIsButtonLoading(false);
+          setDisableButton(false);
           props.showError(err.message || JSON.stringify(err))
         }
       } else {
@@ -127,6 +129,8 @@ function RegistrationForm(props) {
         }],
       });
     } else {
+      setIsButtonLoading(false);
+      setDisableButton(false);
       props.showError('Passwords do not match');
     }
   }
