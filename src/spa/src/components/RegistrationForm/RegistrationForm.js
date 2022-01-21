@@ -36,7 +36,7 @@ function RegistrationForm(props) {
   // Use case 1. Registering a user with the application.
   const awsCognitoSignUp = (p) => {
     const attributes = [
-      // { Name: 'name', Value: formData.name }
+      // { Name: 'name', Value: p.name }
     ]
     userPool.signUp(p.email, p.password, attributes, p.validationData, function(
       err,
@@ -46,20 +46,20 @@ function RegistrationForm(props) {
         if (err.name === 'UserLambdaValidationException') {
           props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
         } else {
+          props.showError(err.message || JSON.stringify(err))
           setIsButtonLoading(false);
           setDisableButton(false);
-          props.showError(err.message || JSON.stringify(err))
         }
       } else {
-
+        // Use case 4. Authenticating a user and establishing a user session with the Amazon Cognito Identity service.
         const payload={
-          "Username" : state.email,
-          "Password" : state.password,
+          "Username" : p.email,
+          "Password" : p.password,
         }
         const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
         
         const userData = {
-          Username: state.email,
+          Username: p.email,
           Pool: userPool,
         };
         const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
@@ -67,7 +67,7 @@ function RegistrationForm(props) {
         cognitoUser.authenticateUser(authenticationDetails, {
           onSuccess: function(result) {
             const idToken = result.getIdToken().getJwtToken();
-            localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken); //TODO: store in httpOnly cookie
+            localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken);
 
             setState(prevState => ({
               ...prevState,
@@ -79,6 +79,8 @@ function RegistrationForm(props) {
 
           onFailure: function(err) {
             props.showError(err.message || JSON.stringify(err));
+            setIsButtonLoading(false);
+            setDisableButton(false);
           },
         });
 
@@ -118,6 +120,8 @@ function RegistrationForm(props) {
     const recaptchaToken = recaptchaRef.current.getValue();
 
     if (recaptchaToken === "") {
+      setIsButtonLoading(false);
+      setDisableButton(false);
       props.showError('Are you a robot?')
     } else if(state.password === state.confirmPassword) {
       awsCognitoSignUp({

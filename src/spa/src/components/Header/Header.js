@@ -28,6 +28,7 @@ function Header(props) {
     // const state = store.getState();
     // state.cognito.user.signOut();
 
+    localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
     localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
     props.updateTitle('Login')
     props.history.push('/login')

@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
 import './LoginForm.css';
-import { withRouter } from "react-router-dom";
-import * as AWS from 'aws-sdk/global';
-import LoaderButton from "../LoaderButton/LoaderButton"
+import { withRouter } from 'react-router-dom';
+import LoaderButton from '../LoaderButton/LoaderButton'
+import LoginCognitoUser from '../../utils/LoginCognitoUser'
+
 
 function LoginForm(props) {
   const [state , setState] = useState({
@@ -23,67 +24,28 @@ function LoginForm(props) {
   const [disableButton, setDisableButton] = React.useState(false); //https://sebhastian.com/react-disable-button/
   const [isButtonLoading, setIsButtonLoading] = React.useState(false);
 
-  // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-  const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
-  const poolData = {
-    UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-    ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-  }
-  const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-
-  // Use case 4. Authenticating a user and establishing a user session with the Amazon Cognito Identity service.
   const awsCognitoLogin = (p) => {
-    const payload={
+    const loginDetails={
       "Username" : p.email,
       "Password" : p.password,
     }
-    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
 
-    const userData = {
-      Username: p.email,
-      Pool: userPool,
-    };
-    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-
-    cognitoUser.authenticateUser(authenticationDetails, {
-      onSuccess: function(result) {
-        const idToken = result.getIdToken().getJwtToken();
-        localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken);
-    
-        AWS.config.region = process.env.REACT_APP_AWS_REGION;
-        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: process.env.REACT_APP_COGNITO_IDENTITY_POOL_ID,
-          Logins: {
-            ['cognito-idp.' + process.env.REACT_APP_AWS_REGION + '.amazonaws.com/' + process.env.REACT_APP_COGNITO_USER_POOL_ID] : result.getIdToken().getJwtToken(),
-          },
-        });
-    
-        // refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
-        AWS.config.credentials.refresh(err => {
-          if (err) {
-            props.showError(err.message || JSON.stringify(err))
-            console.error(err);
-          } else {
-
-            // Instantiate aws sdk service objects now that the credentials have been updated.
-            // example: var s3 = new AWS.S3();
-
-            setState(prevState => ({
-              ...prevState,
-              'successMessage' : 'Login successful. Redirecting to home page...'
-            }))
-            redirectToHome();
-            props.showError(null)
-          }
-        });
-      },
-    
-      onFailure: function(err) {
+    LoginCognitoUser(loginDetails)
+      // .then(tokenSet => loginCognitoUser())
+      .then(tokenSet => {
+        localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
+        setState(prevState => ({
+          ...prevState,
+          'successMessage' : 'Authentication successful.'
+        }))
+        redirectToHome();
+        props.showError(null);
+      })
+      .catch(err => {
         props.showError(err.message || JSON.stringify(err));
         setIsButtonLoading(false);
         setDisableButton(false);
-      },
-    });
+      });
   }
 
   const redirectToHome = () => {

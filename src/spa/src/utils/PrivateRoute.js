@@ -7,7 +7,7 @@ function PrivateRoute({ children, ...rest }) {
       {...rest}
 
       render = {({ location }) =>
-        localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN) ? (
+        localStorage.getItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN) ? (
           children
         ) : (
           <Redirect
