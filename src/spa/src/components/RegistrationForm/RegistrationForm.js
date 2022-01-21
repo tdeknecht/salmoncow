@@ -25,69 +25,105 @@ function RegistrationForm(props) {
 
   const recaptchaRef = React.createRef();
 
-  // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-  const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
-  const poolData = {
-    UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-    ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-  }
-  const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+  // // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
+  // const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
+  // const poolData = {
+  //   UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+  //   ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+  // }
+  // const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-  // Use case 1. Registering a user with the application.
+
   const awsCognitoSignUp = (p) => {
+    console.log("signing up")
+
+    // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
+    const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
+    const poolData = {
+      UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+    }
+    const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
     const attributes = [
       // { Name: 'name', Value: p.name }
     ]
-    userPool.signUp(p.email, p.password, attributes, p.validationData, function(
-      err,
-      result,
-    ) {
-      if (err) {
-        if (err.name === 'UserLambdaValidationException') {
-          props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
-        } else {
-          props.showError(err.message || JSON.stringify(err))
-          setIsButtonLoading(false);
-          setDisableButton(false);
-        }
-      } else {
-        // Use case 4. Authenticating a user and establishing a user session with the Amazon Cognito Identity service.
-        const payload={
-          "Username" : p.email,
-          "Password" : p.password,
-        }
-        const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
-        
-        const userData = {
-          Username: p.email,
-          Pool: userPool,
-        };
-        const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
 
-        cognitoUser.authenticateUser(authenticationDetails, {
-          onSuccess: function(result) {
-            const idToken = result.getIdToken().getJwtToken();
-            localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken);
-
-            setState(prevState => ({
-              ...prevState,
-              'successMessage' : 'Registration successful. Redirecting to home page...'
-            }))
-            redirectToHome();
-            props.showError(null)
-          },
-
-          onFailure: function(err) {
-            props.showError(err.message || JSON.stringify(err));
+    return new Promise((resolve, reject) => (
+      userPool.signUp(p.email, p.password, attributes, null, (err, result) => {
+        if (err) {
+          if (err.name === 'UserLambdaValidationException') {
+            console.err(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
+          } else {
+            props.showError(err.message || JSON.stringify(err))
             setIsButtonLoading(false);
             setDisableButton(false);
-          },
-        });
-
-        // confirmUser(result.user);
-      }
-    });
+            reject(err)
+            return;
+          }
+          // reject(err);
+          // return;
+        }
+        resolve(result.user);
+      })
+    ));
   }
+
+
+
+  // Use case 1. Registering a user with the application.
+  // const awsCognitoSignUp = (p) => {
+  //   const attributes = [
+  //     // { Name: 'name', Value: p.name }
+  //   ]
+  //   userPool.signUp(p.email, p.password, attributes, p.validationData, function(err, result) {
+  //     console.log(result)
+  //     if (err) {
+  //       if (err.name === 'UserLambdaValidationException') {
+  //         props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
+  //       } else {
+  //         props.showError(err.message || JSON.stringify(err))
+  //         setIsButtonLoading(false);
+  //         setDisableButton(false);
+  //       }
+  //     } else {
+  //       // Use case 4. Authenticating a user and establishing a user session with the Amazon Cognito Identity service.
+  //       const payload={
+  //         "Username" : p.email,
+  //         "Password" : p.password,
+  //       }
+  //       const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
+        
+  //       const userData = {
+  //         Username: p.email,
+  //         Pool: userPool,
+  //       };
+  //       const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+  //       cognitoUser.authenticateUser(authenticationDetails, {
+  //         onSuccess: function(result) {
+  //           const idToken = result.getIdToken().getJwtToken();
+  //           localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken);
+
+  //           setState(prevState => ({
+  //             ...prevState,
+  //             'successMessage' : 'Registration successful. Redirecting to home page...'
+  //           }))
+  //           redirectToHome();
+  //           props.showError(null)
+  //         },
+
+  //         onFailure: function(err) {
+  //           props.showError(err.message || JSON.stringify(err));
+  //           setIsButtonLoading(false);
+  //           setDisableButton(false);
+  //         },
+  //       });
+
+  //       // confirmUser(result.user);
+  //     }
+  //   });
+  // }
 
   // use case 2: Confirming a registered, unauthenticated user using a confirmation code received via email
   // const confirmUser = (cognitoUser) => {
