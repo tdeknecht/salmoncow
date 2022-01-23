@@ -31,7 +31,6 @@ function LoginForm(props) {
     }
 
     LoginCognitoUser(loginDetails)
-      // .then(tokenSet => loginCognitoUser())
       .then(tokenSet => {
         localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
         setState(prevState => ({
