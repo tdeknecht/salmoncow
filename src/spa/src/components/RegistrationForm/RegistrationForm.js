@@ -27,8 +27,6 @@ function RegistrationForm(props) {
   const recaptchaRef = React.createRef();
 
   const awsCognitoSignUp = (p) => {
-    console.log("signing up", p)
-
     // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
     const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
     const poolData = {
@@ -94,9 +92,7 @@ function RegistrationForm(props) {
           Value: recaptchaToken,
         }],
       })
-      .then(result => {
-        // Result has tokens in it. Do I need to call LoginCognitoUser here, or can I use those tokens when registration succeeds?
-        console.log(result)
+      .then(() => {
         LoginCognitoUser({"Username":state.email, "Password":state.password})
         .then(tokenSet => {
           localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
@@ -114,12 +110,6 @@ function RegistrationForm(props) {
           setIsButtonLoading(false);
           setDisableButton(false);
         });
-        // setState(prevState => ({
-        //   ...prevState,
-        //   'successMessage' : 'Registration successful.'
-        // }))
-        // redirectToHome();
-        // props.showError(null)
       })
       .catch(err => {
         if (err.name === 'UserLambdaValidationException') {
@@ -143,19 +133,19 @@ function RegistrationForm(props) {
     <div className="card col-12 col-lg-4 login-card mt-2 hv-center">
       <form> 
         <div className="form-group text-left">
-        <label htmlFor="exampleInputEmail1">Email address</label>
-        <input type="email" 
-          className="form-control" 
-          id="email" 
-          aria-describedby="emailHelp" 
-          placeholder="Enter email"
-          value={state.email}
-          onChange={handleChange}
-        />
-        <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
+          <label htmlFor="inputEmail">Email address</label>
+          <input type="email" 
+            className="form-control" 
+            id="email" 
+            aria-describedby="emailHelp" 
+            placeholder="Enter email"
+            value={state.email}
+            onChange={handleChange}
+          />
+          <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
         </div>
         <div className="form-group text-left">
-          <label htmlFor="exampleInputPassword1">Password</label>
+          <label htmlFor="inputPassword">Password</label>
           <input type="password" 
             className="form-control" 
             id="password" 
@@ -165,7 +155,7 @@ function RegistrationForm(props) {
           />
         </div>
         <div className="form-group text-left">
-          <label htmlFor="exampleInputPassword1">Confirm Password</label>
+          <label htmlFor="inputPassword">Confirm Password</label>
           <input type="password" 
             className="form-control" 
             id="confirmPassword" 

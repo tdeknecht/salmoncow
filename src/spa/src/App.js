@@ -54,17 +54,9 @@ export default App;
 
 // function App() {
 //   return (
-//     <div className="App">
-//       <Header />
-//       <RegistrationForm />
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//       </header>
-
-//       <SignUpFormFunc />
-      
+//     <div>
+//       <img src={logo} className="App-logo" alt="logo" />
 //       <Welcome name="Tyler D" />
-
 //     </div>
 //   );
 // }
