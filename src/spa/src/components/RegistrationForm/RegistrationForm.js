@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import './RegistrationForm.css';
 import ReCAPTCHA from 'react-google-recaptcha';
 import LoaderButton from "../LoaderButton/LoaderButton"
+import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
 function RegistrationForm(props) {
   const [state, setState] = useState({
@@ -25,68 +26,27 @@ function RegistrationForm(props) {
 
   const recaptchaRef = React.createRef();
 
-  // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-  const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
-  const poolData = {
-    UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-    ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-  }
-  const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-
-  // Use case 1. Registering a user with the application.
   const awsCognitoSignUp = (p) => {
+    // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
+    const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
+    const poolData = {
+      UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+    }
+    const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
     const attributes = [
       // { Name: 'name', Value: p.name }
     ]
-    userPool.signUp(p.email, p.password, attributes, p.validationData, function(
-      err,
-      result,
-    ) {
-      if (err) {
-        if (err.name === 'UserLambdaValidationException') {
-          props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
-        } else {
-          props.showError(err.message || JSON.stringify(err))
-          setIsButtonLoading(false);
-          setDisableButton(false);
+
+    return new Promise((resolve, reject) => (
+      userPool.signUp(p.email, p.password, attributes, p.validationData, (err, result) => {
+        if (err) {
+          reject(err);
         }
-      } else {
-        // Use case 4. Authenticating a user and establishing a user session with the Amazon Cognito Identity service.
-        const payload={
-          "Username" : p.email,
-          "Password" : p.password,
-        }
-        const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(payload);
-        
-        const userData = {
-          Username: p.email,
-          Pool: userPool,
-        };
-        const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-
-        cognitoUser.authenticateUser(authenticationDetails, {
-          onSuccess: function(result) {
-            const idToken = result.getIdToken().getJwtToken();
-            localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, idToken);
-
-            setState(prevState => ({
-              ...prevState,
-              'successMessage' : 'Registration successful. Redirecting to home page...'
-            }))
-            redirectToHome();
-            props.showError(null)
-          },
-
-          onFailure: function(err) {
-            props.showError(err.message || JSON.stringify(err));
-            setIsButtonLoading(false);
-            setDisableButton(false);
-          },
-        });
-
-        // confirmUser(result.user);
-      }
-    });
+        resolve(result);
+      })
+    ));
   }
 
   // use case 2: Confirming a registered, unauthenticated user using a confirmation code received via email
@@ -131,11 +91,41 @@ function RegistrationForm(props) {
           Name: 'recaptchaToken',
           Value: recaptchaToken,
         }],
+      })
+      .then(() => {
+        LoginCognitoUser({"Username":state.email, "Password":state.password})
+        .then(tokenSet => {
+          localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
+          setState(prevState => ({
+            ...prevState,
+            'successMessage' : 'Authentication successful.'
+          }))
+          redirectToHome();
+          props.showError(null);
+
+          // confirmUser(result.user); // confirm user via email. Needs to happen after registration+authentication
+        })
+        .catch(err => {
+          props.showError(err.message || JSON.stringify(err));
+          setIsButtonLoading(false);
+          setDisableButton(false);
+        });
+      })
+      .catch(err => {
+        if (err.name === 'UserLambdaValidationException') {
+          props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
+          setIsButtonLoading(false);
+          setDisableButton(false);
+        } else {
+          props.showError(err.message || JSON.stringify(err))
+          setIsButtonLoading(false);
+          setDisableButton(false);
+        }
       });
     } else {
+      props.showError('Passwords do not match');
       setIsButtonLoading(false);
       setDisableButton(false);
-      props.showError('Passwords do not match');
     }
   }
 
@@ -143,19 +133,19 @@ function RegistrationForm(props) {
     <div className="card col-12 col-lg-4 login-card mt-2 hv-center">
       <form> 
         <div className="form-group text-left">
-        <label htmlFor="exampleInputEmail1">Email address</label>
-        <input type="email" 
-          className="form-control" 
-          id="email" 
-          aria-describedby="emailHelp" 
-          placeholder="Enter email"
-          value={state.email}
-          onChange={handleChange}
-        />
-        <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
+          <label htmlFor="inputEmail">Email address</label>
+          <input type="email" 
+            className="form-control" 
+            id="email" 
+            aria-describedby="emailHelp" 
+            placeholder="Enter email"
+            value={state.email}
+            onChange={handleChange}
+          />
+          <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
         </div>
         <div className="form-group text-left">
-          <label htmlFor="exampleInputPassword1">Password</label>
+          <label htmlFor="inputPassword">Password</label>
           <input type="password" 
             className="form-control" 
             id="password" 
@@ -165,7 +155,7 @@ function RegistrationForm(props) {
           />
         </div>
         <div className="form-group text-left">
-          <label htmlFor="exampleInputPassword1">Confirm Password</label>
+          <label htmlFor="inputPassword">Confirm Password</label>
           <input type="password" 
             className="form-control" 
             id="confirmPassword" 

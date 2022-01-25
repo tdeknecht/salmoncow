@@ -17,11 +17,9 @@ function LoginCognitoUser(loginDetails) {
   return new Promise((resolve, reject) =>
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
-        console.log('Successfully authenticated', result);
         resolve(result);
       },
       onFailure: (err) => {
-        console.log('Error authenticating', err);
         reject(err);
       }
     })
