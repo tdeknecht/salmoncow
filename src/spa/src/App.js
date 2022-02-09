@@ -12,51 +12,56 @@ import RegistrationForm from './components/RegistrationForm/RegistrationForm';
 import AlertComponent from './components/AlertComponent/AlertComponent'; 
 import PrivateRoute from './utils/PrivateRoute';
 
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+
 import logo from './images/salmoncow.png';
 import {
   BrowserRouter as Router,
   Switch,
   Route
-} from "react-router-dom";
+} from 'react-router-dom';
 
-function App() {
+export default function App() {
   const [title, updateTitle] = useState(null);
   const [errorMessage, updateErrorMessage] = useState(null);
 
   return (
     <Router>
-    <div className="App">
-      <Header title={title} className="App-header" updateTitle={updateTitle} />
-        <div className="container d-flex align-items-center flex-column">
-        <img src={logo} className="App-logo" alt="logo" />
+      <Header title={title} updateTitle={updateTitle} />
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="center"
+        style={{ minHeight: '100vh' }}
+      >
+        <img src={logo} className='logo' alt='logo' />
           <Switch>
-            <Route path="/register">
+            <Route path='/register'>
               <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle} />
             </Route>
-            <Route path="/login">
+            <Route path='/login'>
               <LoginForm showError={updateErrorMessage} updateTitle={updateTitle} />
             </Route>
-            <PrivateRoute path="/">
+            <PrivateRoute path='/'>
               <Home />
             </PrivateRoute>
           </Switch>
           <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage} />
-        </div>
-        &nbsp;
-        <p className="App-footer">
-          This is a dev site. Nothing will be saved. It's simply an experimental <a href="https://github.com/tdeknecht/salmoncow" target="_blank" rel="noopener noreferrer">side project</a>.
+        <p className='footer'>
+          This is a dev site. Nothing will be saved. It's simply an experimental <a href='https://github.com/tdeknecht/salmoncow' target='_blank' rel='noopener noreferrer'>side project</a>.
         </p>
-    </div>
+      </Grid>
     </Router>
   );
 }
-export default App;
 
 // function App() {
 //   return (
 //     <div>
-//       <img src={logo} className="App-logo" alt="logo" />
-//       <Welcome name="Tyler D" />
+//       <img src={logo} className='App-logo' alt='logo' />
+//       <Welcome name='Tyler D' />
 //     </div>
 //   );
 // }

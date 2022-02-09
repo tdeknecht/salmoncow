@@ -30,7 +30,7 @@ function Home(props) {
 	// }
 
 	return(
-		<div className="mt-2">
+		<div>
 			You smell like poop.
 		</div>
 	)

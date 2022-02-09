@@ -2,7 +2,8 @@
   text-align: center;
 }
 
-.App-logo {
+.logo {
+  margin-top: 10px;
   height: 40vmin;
   pointer-events: none;
 }
@@ -28,7 +29,8 @@
   color: #61dafb;
 }
 
-.App-footer {
+.footer {
+  margin-top: 10px;
   color: grey;
   font-size: 9px;
 }
