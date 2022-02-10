@@ -1,7 +1,13 @@
 import React, {useState} from 'react';
-import './LoginForm.css';
 import { withRouter } from 'react-router-dom';
 import LoginCognitoUser from '../../utils/LoginCognitoUser'
+
+import AlertComponent from '../../components/AlertComponent/AlertComponent';
+
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
 
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -27,6 +33,10 @@ function LoginForm(props) {
   const [disabled, setDisableButton] = React.useState(false); //https://sebhastian.com/react-disable-button/
   const [loading, setButtonLoading] = React.useState(false);
 
+  // Alert Box
+  const [alert, setAlert] = useState(false);
+  const [alertContent, setAlertContent] = useState('');
+
   const awsCognitoLogin = (p) => {
     const loginDetails={
       'Username' : p.email,
@@ -41,10 +51,11 @@ function LoginForm(props) {
           'successMessage' : "Authentication successful."
         }))
         redirectToHome();
-        props.showError(null);
       })
       .catch(err => {
-        props.showError(err.message || JSON.stringify(err));
+        setAlertContent(err.message || JSON.stringify(err));
+        setAlert(true);
+
         setButtonLoading(false);
         setDisableButton(false);
       });
@@ -126,52 +137,27 @@ function LoginForm(props) {
           Register
         </Button>
       </Box>
+      <Collapse in={alert}>
+        <Alert
+          severity="error"
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setAlert(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+          {alertContent}
+        </Alert>
+      </Collapse>
     </Box>
   )
-
-  // return(
-  //   <div>
-  //     <form>
-  //       <div>
-  //         <label htmlFor='inputEmail'>Email address</label>
-  //         <input type='email' 
-  //           className='form-control' 
-  //           id='email' 
-  //           aria-describedby='emailHelp' 
-  //           placeholder='Enter email' 
-  //           value={state.email}
-  //           onChange={handleChange}
-  //         />
-  //         <small>We'll never share your email with anyone else.</small>
-  //       </div>
-  //       <div>
-  //         <label htmlFor='inputPassword'>Password</label>
-  //         <input type='password' 
-  //           className='form-control' 
-  //           id='password' 
-  //           placeholder='Password'
-  //           value={state.password}
-  //           onChange={handleChange} 
-  //         />
-  //       </div>
-  //       <LoadingButton
-  //         style={{minWidth: '100px'}}
-  //         onClick={onClick}
-  //         loading={loading}
-  //         disabled={disabled}
-  //         variant='outlined'
-  //       >
-  //         Login
-  //       </LoadingButton>
-  //     </form>
-  //     <div style={{display: state.successMessage ? 'block' : 'none' }} role='alert'>
-  //       {state.successMessage}
-  //     </div>
-  //     <div>
-  //       <span>Dont have an account? </span>
-  //       <span onClick={() => redirectToRegister()}>Register</span> 
-  //     </div>
-  //   </div>
-  // )
 }
 export default withRouter(LoginForm);

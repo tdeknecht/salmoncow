@@ -13,7 +13,6 @@ import AlertComponent from './components/AlertComponent/AlertComponent';
 import PrivateRoute from './utils/PrivateRoute';
 
 import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 
 import logo from './images/salmoncow.png';
 import {
