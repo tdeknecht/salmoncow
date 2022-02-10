@@ -74,7 +74,6 @@ function LoginForm(props) {
   return(
     <Box
       component="form"
-      justifyContent="center"
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -107,18 +106,26 @@ function LoginForm(props) {
         loading={loading}
         disabled={disabled}
         variant='outlined'
+        type='submit'
       >
         Login
       </LoadingButton>
-      <div>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         Don't have an account?
         <Button
           variant="text"
+          style={{ backgroundColor: 'transparent' }}
           onClick={() => redirectToRegister()}
         >
           Register
         </Button>
-      </div>
+      </Box>
     </Box>
   )
 

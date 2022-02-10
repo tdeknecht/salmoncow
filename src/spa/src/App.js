@@ -32,8 +32,8 @@ export default function App() {
       <Grid
         container
         spacing={0}
-        direction="column"
-        alignItems="center"
+        direction='column'
+        alignItems='center'
         style={{ minHeight: '100vh' }}
       >
         <img src={logo} className='logo' alt='logo' />

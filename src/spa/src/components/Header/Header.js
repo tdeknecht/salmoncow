@@ -5,9 +5,10 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 
 function Header(props) {
   const capitalize = (s) => {
@@ -20,20 +21,55 @@ function Header(props) {
     title = 'Welcome'
   }
 
-  function renderLogout() {
+  // profile menu
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  function renderProfile() {
     if(props.location.pathname === '/'){
       return(
-        <Button
-          color="inherit"
-          onClick={() => handleLogout()}
-        >
-          Logout
-        </Button>
+        <div>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+            color="inherit"
+          >
+            <AccountCircle />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem>Profile</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
+        </div>
       )
     }
   }
 
   function handleLogout() {
+    handleClose() // needed to prevent anchorEl not existing if user immediately logs back in
+
     // TODO: Find a way to truly log out, not just delete local token
     // const { store } = this.context;
     // const state = store.getState();
@@ -46,28 +82,13 @@ function Header(props) {
   }
 
   return(
-    // <nav className="navbar navbar-dark bg-primary">
-    //   <div className="row col-12 d-flex justify-content-center text-white">
-    //     <span className="h3">{props.title || title}</span>
-    //     {renderLogout()}
-    //   </div>
-    // </nav>
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {props.title || title}
           </Typography>
-          {renderLogout()}
+          {renderProfile()}
         </Toolbar>
       </AppBar>
     </Box>
