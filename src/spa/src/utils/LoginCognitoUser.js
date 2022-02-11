@@ -1,5 +1,5 @@
 // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-function LoginCognitoUser(loginDetails) {
+export default function LoginCognitoUser(loginDetails) {
   const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
 
   const cognitoUserPool = new AmazonCognitoIdentity.CognitoUserPool({
@@ -25,5 +25,3 @@ function LoginCognitoUser(loginDetails) {
     })
   );
 }
-
-export default LoginCognitoUser;

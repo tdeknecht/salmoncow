@@ -1,18 +1,15 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import LoginCognitoUser from '../../utils/LoginCognitoUser'
-
-import AlertComponent from '../../components/AlertComponent/AlertComponent';
 
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
+import Link from '@mui/material/Link';
 
 function LoginForm(props) {
   const [state , setState] = useState({
@@ -30,7 +27,7 @@ function LoginForm(props) {
   }
 
   // Login Button
-  const [disabled, setDisableButton] = React.useState(false); //https://sebhastian.com/react-disable-button/
+  const [disabled, setDisableButton] = React.useState(false);
   const [loading, setButtonLoading] = React.useState(false);
 
   // Alert Box
@@ -62,7 +59,7 @@ function LoginForm(props) {
   }
 
   const redirectToHome = () => {
-    props.updateTitle('Home')
+    props.updateTitle('Home');
     props.history.push('/');
   }
 
@@ -84,7 +81,7 @@ function LoginForm(props) {
   }
   return(
     <Box
-      component="form"
+      component='form'
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -92,22 +89,23 @@ function LoginForm(props) {
         '& > :not(style)': { m: 1, width: '35ch' },
       }}
       noValidate
-      autoComplete="off"
+      autoComplete='off'
     >
       <TextField
-        id="email"
+        id='email'
         label="E-mail"
-        variant="standard"
+        variant='standard'
         required
+        type='email'
         value={state.email}
         onChange={handleChange}
       />
       <TextField
-          id="password"
+          id='password'
           label="Password"
-          variant="standard"
+          variant='standard'
           required
-          type="password"
+          type='password'
           value={state.password}
           onChange={handleChange}
       />
@@ -121,6 +119,26 @@ function LoginForm(props) {
       >
         Login
       </LoadingButton>
+      <Collapse in={alert}>
+        <Alert
+          severity='error'
+          action={
+            <IconButton
+              aria-label='close'
+              color='inherit'
+              size='small'
+              onClick={() => {
+                setAlert(false);
+              }}
+            >
+              <CloseIcon fontSize='inherit' />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+          {alertContent}
+        </Alert>
+      </Collapse>
       <Box
         sx={{
           display: 'flex',
@@ -129,34 +147,17 @@ function LoginForm(props) {
         }}
       >
         Don't have an account?
-        <Button
-          variant="text"
-          style={{ backgroundColor: 'transparent' }}
+        <Link
+          component='button'
+          underline='none'
+          sx={{
+            ml: '10px',
+          }}
           onClick={() => redirectToRegister()}
         >
-          Register
-        </Button>
+          Register here
+        </Link>
       </Box>
-      <Collapse in={alert}>
-        <Alert
-          severity="error"
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setAlert(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-          sx={{ mb: 2 }}
-        >
-          {alertContent}
-        </Alert>
-      </Collapse>
     </Box>
   )
 }
