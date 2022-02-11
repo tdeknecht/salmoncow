@@ -1,14 +1,20 @@
-import React, {useState} from 'react';
-import './LoginForm.css';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import LoaderButton from '../LoaderButton/LoaderButton'
 import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Link from '@mui/material/Link';
 
 function LoginForm(props) {
   const [state , setState] = useState({
-    email : "",
-    password : "",
+    email : '',
+    password : '',
     successMessage: null
   })
 
@@ -21,13 +27,17 @@ function LoginForm(props) {
   }
 
   // Login Button
-  const [disableButton, setDisableButton] = React.useState(false); //https://sebhastian.com/react-disable-button/
-  const [isButtonLoading, setIsButtonLoading] = React.useState(false);
+  const [disabled, setDisableButton] = React.useState(false);
+  const [loading, setButtonLoading] = React.useState(false);
+
+  // Alert Box
+  const [alert, setAlert] = useState(false);
+  const [alertContent, setAlertContent] = useState('');
 
   const awsCognitoLogin = (p) => {
     const loginDetails={
-      "Username" : p.email,
-      "Password" : p.password,
+      'Username' : p.email,
+      'Password' : p.password,
     }
 
     LoginCognitoUser(loginDetails)
@@ -35,20 +45,21 @@ function LoginForm(props) {
         localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
         setState(prevState => ({
           ...prevState,
-          'successMessage' : 'Authentication successful.'
+          'successMessage' : "Authentication successful."
         }))
         redirectToHome();
-        props.showError(null);
       })
       .catch(err => {
-        props.showError(err.message || JSON.stringify(err));
-        setIsButtonLoading(false);
+        setAlertContent(err.message || JSON.stringify(err));
+        setAlert(true);
+
+        setButtonLoading(false);
         setDisableButton(false);
       });
   }
 
   const redirectToHome = () => {
-    props.updateTitle('Home')
+    props.updateTitle('Home');
     props.history.push('/');
   }
 
@@ -60,7 +71,7 @@ function LoginForm(props) {
   const onClick = (e) => {
     e.preventDefault();
 
-    setIsButtonLoading(true);
+    setButtonLoading(true);
     setDisableButton(true);
 
     awsCognitoLogin({
@@ -68,51 +79,86 @@ function LoginForm(props) {
       password: state.password,
     });
   }
-
   return(
-    <div className="card col-12 col-lg-4 login-card mt-2 hv-center">
-      <form>
-        <div className="form-group text-left">
-          <label htmlFor="inputEmail">Email address</label>
-          <input type="email" 
-            className="form-control" 
-            id="email" 
-            aria-describedby="emailHelp" 
-            placeholder="Enter email" 
-            value={state.email}
-            onChange={handleChange}
-          />
-          <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
-        </div>
-        <div className="form-group text-left">
-          <label htmlFor="inputPassword">Password</label>
-          <input type="password" 
-            className="form-control" 
-            id="password" 
-            placeholder="Password"
-            value={state.password}
-            onChange={handleChange} 
-          />
-        </div>
-        <div className="form-check">
-        </div>
-        <LoaderButton
-          onClick={onClick}
-          isLoading={isButtonLoading}
-          disableButton={disableButton}
+    <Box
+      component='form'
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        '& > :not(style)': { m: 1, width: '35ch' },
+      }}
+      noValidate
+      autoComplete='off'
+    >
+      <TextField
+        id='email'
+        label="E-mail"
+        variant='standard'
+        required
+        type='email'
+        value={state.email}
+        onChange={handleChange}
+      />
+      <TextField
+          id='password'
+          label="Password"
+          variant='standard'
+          required
+          type='password'
+          value={state.password}
+          onChange={handleChange}
+      />
+      <LoadingButton
+        style={{maxWidth: '100px', minWidth: '100px'}}
+        onClick={onClick}
+        loading={loading}
+        disabled={disabled}
+        variant='outlined'
+        type='submit'
+      >
+        Login
+      </LoadingButton>
+      <Collapse in={alert}>
+        <Alert
+          severity='error'
+          action={
+            <IconButton
+              aria-label='close'
+              color='inherit'
+              size='small'
+              onClick={() => {
+                setAlert(false);
+              }}
+            >
+              <CloseIcon fontSize='inherit' />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
         >
-          Login
-        </LoaderButton>
-      </form>
-      <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none' }} role="alert">
-        {state.successMessage}
-      </div>
-      <div className="registerMessage">
-        <span>Dont have an account? </span>
-        <span className="loginText" onClick={() => redirectToRegister()}>Register</span> 
-      </div>
-    </div>
+          {alertContent}
+        </Alert>
+      </Collapse>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        Don't have an account?
+        <Link
+          component='button'
+          underline='none'
+          sx={{
+            ml: '10px',
+          }}
+          onClick={() => redirectToRegister()}
+        >
+          Register here
+        </Link>
+      </Box>
+    </Box>
   )
 }
-
 export default withRouter(LoginForm);

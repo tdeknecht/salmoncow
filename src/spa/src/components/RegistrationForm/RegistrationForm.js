@@ -1,15 +1,22 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import './RegistrationForm.css';
 import ReCAPTCHA from 'react-google-recaptcha';
-import LoaderButton from "../LoaderButton/LoaderButton"
 import LoginCognitoUser from '../../utils/LoginCognitoUser'
+
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Link from '@mui/material/Link';
 
 function RegistrationForm(props) {
   const [state, setState] = useState({
-    email : "",
-    password : "",
-    confirmPassword : ""
+    email : '',
+    password : '',
+    confirmPassword : ''
   })
 
   const handleChange = (e) => {
@@ -21,14 +28,18 @@ function RegistrationForm(props) {
   }
 
   // Registration Button
-  const [disableButton, setDisableButton] = React.useState(false); //https://sebhastian.com/react-disable-button/
-  const [isButtonLoading, setIsButtonLoading] = React.useState(false);
+  const [disabled, setDisableButton] = React.useState(false);
+  const [loading, setButtonLoading] = React.useState(false);
+
+  // Alert Box
+  const [alert, setAlert] = useState(false);
+  const [alertContent, setAlertContent] = useState('');
 
   const recaptchaRef = React.createRef();
 
   const awsCognitoSignUp = (p) => {
     // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-    const AmazonCognitoIdentity = require("amazon-cognito-identity-js");
+    const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
     const poolData = {
       UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
       ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
@@ -62,27 +73,29 @@ function RegistrationForm(props) {
   // }
 
   const redirectToHome = () => {
-    props.updateTitle('Home')
+    props.updateTitle('Home');
     props.history.push('/');
   }
 
   const redirectToLogin = () => {
-    props.updateTitle('Login')
+    props.updateTitle('Login');
     props.history.push('/login'); 
   }
 
   const onClick = (e) => {
     e.preventDefault();
 
-    setIsButtonLoading(true);
+    setButtonLoading(true);
     setDisableButton(true);
 
     const recaptchaToken = recaptchaRef.current.getValue();
 
-    if (recaptchaToken === "") {
-      setIsButtonLoading(false);
+    if (recaptchaToken === '') {
+      setAlertContent("Are you a robot?");
+      setAlert(true);
+
+      setButtonLoading(false);
       setDisableButton(false);
-      props.showError('Are you a robot?')
     } else if(state.password === state.confirmPassword) {
       awsCognitoSignUp({
         email: state.email, 
@@ -93,99 +106,144 @@ function RegistrationForm(props) {
         }],
       })
       .then(() => {
-        LoginCognitoUser({"Username":state.email, "Password":state.password})
+        LoginCognitoUser({'Username':state.email, 'Password':state.password})
         .then(tokenSet => {
           localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
           setState(prevState => ({
             ...prevState,
-            'successMessage' : 'Authentication successful.'
+            'successMessage' : "Authentication successful."
           }))
           redirectToHome();
-          props.showError(null);
 
           // confirmUser(result.user); // confirm user via email. Needs to happen after registration+authentication
         })
         .catch(err => {
-          props.showError(err.message || JSON.stringify(err));
-          setIsButtonLoading(false);
+          setAlertContent(err.message || JSON.stringify(err));
+          setAlert(true);
+
+          setButtonLoading(false);
           setDisableButton(false);
         });
       })
       .catch(err => {
         if (err.name === 'UserLambdaValidationException') {
-          props.showError(err.message.replace('PreSignUp failed with error ','') || JSON.stringify(err))
-          setIsButtonLoading(false);
+          setAlertContent(err.message.replace("PreSignUp failed with error ","") || JSON.stringify(err))
+          setAlert(true);
+
+          setButtonLoading(false);
           setDisableButton(false);
         } else {
-          props.showError(err.message || JSON.stringify(err))
-          setIsButtonLoading(false);
+          setAlertContent(err.message || JSON.stringify(err));
+          setAlert(true);
+
+          setButtonLoading(false);
           setDisableButton(false);
         }
       });
     } else {
-      props.showError('Passwords do not match');
-      setIsButtonLoading(false);
+      setAlertContent("Passwords do not match");
+      setAlert(true);
+
+      setButtonLoading(false);
       setDisableButton(false);
     }
   }
 
   return(
-    <div className="card col-12 col-lg-4 login-card mt-2 hv-center">
-      <form> 
-        <div className="form-group text-left">
-          <label htmlFor="inputEmail">Email address</label>
-          <input type="email" 
-            className="form-control" 
-            id="email" 
-            aria-describedby="emailHelp" 
-            placeholder="Enter email"
-            value={state.email}
-            onChange={handleChange}
-          />
-          <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
-        </div>
-        <div className="form-group text-left">
-          <label htmlFor="inputPassword">Password</label>
-          <input type="password" 
-            className="form-control" 
-            id="password" 
-            placeholder="Password"
-            value={state.password}
-            onChange={handleChange} 
-          />
-        </div>
-        <div className="form-group text-left">
-          <label htmlFor="inputPassword">Confirm Password</label>
-          <input type="password" 
-            className="form-control" 
-            id="confirmPassword" 
-            placeholder="Confirm Password"
-            value={state.confirmPassword}
-            onChange={handleChange} 
-          />
-        </div>
-        <div className="Re-captcha">
-          <ReCAPTCHA
-            ref={recaptchaRef}
-            sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-          />
-        </div>
-        <LoaderButton
-          onClick={onClick}
-          isLoading={isButtonLoading}
-          disableButton={disableButton}
+    <Box
+      component="form"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        '& > :not(style)': { m: 1, width: '35ch' },
+      }}
+      noValidate
+      autoComplete="off"
+    >
+      <TextField
+        id="email"
+        label="E-mail"
+        variant="standard"
+        required
+        type="email"
+        value={state.email}
+        onChange={handleChange}
+      />
+      <TextField
+          id="password"
+          label="Password"
+          variant="standard"
+          required
+          type="password"
+          value={state.password}
+          onChange={handleChange}
+      />
+      <TextField
+          id="confirmPassword"
+          label="Confirm Password"
+          variant="standard"
+          required
+          type="password"
+          value={state.confirmPassword}
+          onChange={handleChange}
+      />
+      <div className='Re-captcha'>
+        <ReCAPTCHA
+          ref={recaptchaRef}
+          sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+        />
+      </div>
+      <LoadingButton
+        style={{maxWidth: '100px', minWidth: '100px'}}
+        onClick={onClick}
+        loading={loading}
+        disabled={disabled}
+        variant='outlined'
+        type='submit'
+      >
+        Register
+      </LoadingButton>
+      <Collapse in={alert}>
+        <Alert
+          severity="error"
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setAlert(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
         >
-          Register
-        </LoaderButton>
-      </form>
-      <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none' }} role="alert">
-        {state.successMessage}
-      </div>
-      <div className="mt-2">
-        <span>Already have an account? </span>
-        <span className="loginText" onClick={() => redirectToLogin()}>Login here</span> 
-      </div>
-    </div>
+          {alertContent}
+        </Alert>
+      </Collapse>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        Already have an account?
+        <Link
+          component='button'
+          underline='none'
+          sx={{
+            ml: '10px',
+          }}
+          onClick={() => redirectToLogin()}
+        >
+          Login here
+        </Link>
+      </Box>
+    </Box>
   )
 }
 export default withRouter(RegistrationForm);
