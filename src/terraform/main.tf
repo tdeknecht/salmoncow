@@ -25,7 +25,7 @@ locals {
 
 # salmoncow.com
 module "route53_zone_salmoncow_com" {
-  source = "git::https://github.com/tdeknecht/aws-terraform//modules/network/route53_zone/"
+  source = "git::https://github.com/tdeknecht/terraform-aws//modules/network/route53_zone/"
 
   name    = "salmoncow.com"
   comment = "salmoncow public zone"
@@ -62,7 +62,7 @@ resource "aws_route53_record" "www_salmoncow_com" {
 
 # salmoncow.com certificate
 module "acm_cert_salmoncow_com" {
-  source = "git::https://github.com/tdeknecht/aws-terraform//modules/network/acm_certificate/"
+  source = "git::https://github.com/tdeknecht/terraform-aws//modules/network/acm_certificate/"
 
   ou                        = var.ou
   certificate_domain_name   = "salmoncow.com"
@@ -145,7 +145,7 @@ resource "aws_cloudfront_origin_access_identity" "salmoncow_com_oai" {
 
 # salmoncow
 # module "salmoncow_api_lambda" {
-#   source = "git::https://github.com/tdeknecht/aws-terraform//modules/hello_world/rest_api_lambda/"
+#   source = "git::https://github.com/tdeknecht/terraform-aws//modules/hello_world/rest_api_lambda/"
 #   # source = "../../../terraform/modules/hello_world/rest_api_lambda"
 
 #   ou   = local.ou
@@ -159,7 +159,7 @@ resource "aws_cloudfront_origin_access_identity" "salmoncow_com_oai" {
 
 # salmoncow.com (website host)
 module "s3_bucket_salmoncow_com" {
-  source = "git::https://github.com/tdeknecht/aws-terraform//modules/storage/s3_bucket/"
+  source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
 
   ou                  = var.ou
   use_case            = var.use_case
@@ -193,7 +193,7 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_com" {
 
 # www.salmoncow.com (website redirect)
 module "s3_bucket_www_salmoncow_com" {
-  source = "git::https://github.com/tdeknecht/aws-terraform//modules/storage/s3_bucket/"
+  source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
 
   ou                  = var.ou
   use_case            = var.use_case
@@ -208,7 +208,7 @@ module "s3_bucket_www_salmoncow_com" {
 
 # salmoncow (data)
 module "s3_bucket_salmoncow" {
-  source = "git::https://github.com/tdeknecht/aws-terraform//modules/storage/s3_bucket/"
+  source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
 
   ou                  = var.ou
   use_case            = var.use_case
