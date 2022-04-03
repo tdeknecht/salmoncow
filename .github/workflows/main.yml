@@ -3,7 +3,6 @@ on: [push]
 
 env:
   AWS_REGION: "us-east-1"
-  AWS_ACCOUNT_ID: ""
 
 permissions:
       id-token: write
@@ -22,17 +21,12 @@ jobs:
       - name: Git clone the repository
         uses: actions/checkout@v2
 
-      - name: configure aws credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::117865246796:role/td000-dev-salmoncow-role
           role-session-name: salmoncowDeployer
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Configure AWS
-        run: |
-          aws --version
-          aws configure set region ${{ env.AWS_REGION }}
 
       - name: Set up tfvars
         working-directory: ./src/terraform
@@ -64,17 +58,12 @@ jobs:
       - name: Git clone the repository
         uses: actions/checkout@v2
 
-      - name: configure aws credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::117865246796:role/td000-dev-salmoncow-role
           role-session-name: salmoncowDeployer
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Configure AWS
-        run: |
-          aws --version
-          aws configure set region ${{ env.AWS_REGION }}
 
       - name: Build app
         env:
