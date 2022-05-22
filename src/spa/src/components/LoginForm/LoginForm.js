@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
-import LoginCognitoUser from '../../utils/LoginCognitoUser'
+import { useLocation } from 'react-router-dom'
 
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
@@ -10,6 +9,8 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
+
+import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
 function LoginForm(props) {
   const [state , setState] = useState({
@@ -59,12 +60,12 @@ function LoginForm(props) {
   }
 
   const redirectToHome = () => {
-    props.updateTitle('Home');
+    // props.updateTitle('Home');
     props.history.push('/');
   }
 
   const redirectToRegister = () => {
-    props.updateTitle('Register');
+    // props.updateTitle('Register');
     props.history.push('/register'); 
   }
 
@@ -161,4 +162,4 @@ function LoginForm(props) {
     </Box>
   )
 }
-export default withRouter(LoginForm);
+export default LoginForm;

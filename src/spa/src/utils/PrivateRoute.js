@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Route } from "react-router-dom";
+import { Navigate, Route } from "react-router-dom";
 
 export default function PrivateRoute({ children, ...rest }) {
   return (
@@ -10,7 +10,7 @@ export default function PrivateRoute({ children, ...rest }) {
         localStorage.getItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN) ? (
           children
         ) : (
-          <Redirect
+          <Navigate
             to={{
               pathname: "/login",
               state: { from: location }

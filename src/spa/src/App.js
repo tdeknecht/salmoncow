@@ -4,9 +4,14 @@
 import React, {useState} from 'react';
 import {
   BrowserRouter as Router,
-  Switch,
-  Route
-} from 'react-router-dom';
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useLocation,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 
 import './App.css';
 import logo from './images/salmoncow.png';
@@ -20,11 +25,9 @@ import PrivateRoute from './utils/PrivateRoute';
 import Grid from '@mui/material/Grid';
 
 export default function App() {
-  const [title, updateTitle] = useState(null);
-
   return (
     <Router>
-      <Header title={title} updateTitle={updateTitle} />
+      <Header />
       <Grid
         container
         spacing={0}
@@ -33,17 +36,13 @@ export default function App() {
         style={{ minHeight: '100vh' }}
       >
         <img src={logo} className='logo' alt='logo' />
-          <Switch>
-            <Route path='/register'>
-              <RegistrationForm updateTitle={updateTitle} />
-            </Route>
-            <Route path='/login'>
-              <LoginForm updateTitle={updateTitle} />
-            </Route>
-            <PrivateRoute path='/'>
-              <Home />
-            </PrivateRoute>
-          </Switch>
+          <Routes>
+            {/* <Route element={<Header />}> */}
+              <Route path='/register' element={<RegistrationForm />} />
+              <Route path='/login' element={<LoginForm />} />
+              {/* <PrivateRoute path='/' element={<Home />} /> */}
+            {/* </Route> */}
+          </Routes>
         <p className='footer'>
           This is a dev site. It's simply a fun <a href='https://github.com/tdeknecht/salmoncow' target='_blank' rel='noopener noreferrer'>side project</a>.
         </p>

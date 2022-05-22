@@ -1,5 +1,5 @@
 import React from 'react';
-import { withRouter } from "react-router-dom";
+import { useLocation } from 'react-router-dom'
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -11,13 +11,15 @@ import Menu from '@mui/material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
 function Header(props) {
+  const location = useLocation()
+
   const capitalize = (s) => {
       if (typeof s !== 'string') return ''
       return s.charAt(0).toUpperCase() + s.slice(1)
   }
-  let title = capitalize(props.location.pathname.substring(1,props.location.pathname.length))
+  let title = capitalize(location.pathname.substring(1,location.pathname.length))
 
-  if(props.location.pathname === '/') {
+  if(location.pathname === '/') {
     title = 'Welcome'
   }
 
@@ -31,7 +33,7 @@ function Header(props) {
   };
 
   function renderProfile() {
-    if(props.location.pathname === '/'){
+    if(location.pathname === '/'){
       return(
         <div>
           <IconButton
@@ -77,7 +79,7 @@ function Header(props) {
 
     localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
     localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
-    props.updateTitle('Login')
+    // props.updateTitle('Login')
     props.history.push('/login')
   }
 
@@ -86,7 +88,7 @@ function Header(props) {
       <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {props.title || title}
+            {title}
           </Typography>
           {renderProfile()}
         </Toolbar>
@@ -95,4 +97,4 @@ function Header(props) {
     </Box>
   )
 }
-export default withRouter(Header);
+export default Header;

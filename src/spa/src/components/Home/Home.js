@@ -1,5 +1,4 @@
 import React,{ useEffect } from 'react';
-import { withRouter } from 'react-router-dom';
 // import jwt_decode from 'jwt-decode';
 
 function Home(props) {
@@ -31,9 +30,9 @@ function Home(props) {
 
 	return(
 		<div>
-			You smell like poop.
+			Welcome!
 		</div>
 	)
 }
 
-export default withRouter(Home);
+export default Home;

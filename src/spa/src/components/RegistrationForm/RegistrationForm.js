@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
-import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
@@ -11,6 +9,8 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
+
+import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
 function RegistrationForm(props) {
   const [state, setState] = useState({
@@ -73,12 +73,12 @@ function RegistrationForm(props) {
   // }
 
   const redirectToHome = () => {
-    props.updateTitle('Home');
+    // props.updateTitle('Home');
     props.history.push('/');
   }
 
   const redirectToLogin = () => {
-    props.updateTitle('Login');
+    // props.updateTitle('Login');
     props.history.push('/login'); 
   }
 
@@ -246,4 +246,4 @@ function RegistrationForm(props) {
     </Box>
   )
 }
-export default withRouter(RegistrationForm);
+export default RegistrationForm;
