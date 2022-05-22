@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha';
 
 import Alert from '@mui/material/Alert';
@@ -13,6 +14,8 @@ import Link from '@mui/material/Link';
 import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
 function RegistrationForm(props) {
+  const navigate = useNavigate()
+
   const [state, setState] = useState({
     email : '',
     password : '',
@@ -72,16 +75,6 @@ function RegistrationForm(props) {
   //   });
   // }
 
-  const redirectToHome = () => {
-    // props.updateTitle('Home');
-    props.history.push('/');
-  }
-
-  const redirectToLogin = () => {
-    // props.updateTitle('Login');
-    props.history.push('/login'); 
-  }
-
   const onClick = (e) => {
     e.preventDefault();
 
@@ -113,7 +106,7 @@ function RegistrationForm(props) {
             ...prevState,
             'successMessage' : "Authentication successful."
           }))
-          redirectToHome();
+          navigate('/protected');
 
           // confirmUser(result.user); // confirm user via email. Needs to happen after registration+authentication
         })
@@ -238,7 +231,7 @@ function RegistrationForm(props) {
           sx={{
             ml: '10px',
           }}
-          onClick={() => redirectToLogin()}
+          onClick={() => navigate('/login')}
         >
           Login here
         </Link>

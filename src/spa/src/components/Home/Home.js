@@ -1,7 +1,7 @@
 import React,{ useEffect } from 'react';
 // import jwt_decode from 'jwt-decode';
 
-function Home(props) {
+function Home() {
 	useEffect(() => {
     // https://github.com/auth0/jwt-decode or my personal javascript repo for snippets
     // Using Cognito tokens: https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-with-identity-providers.html

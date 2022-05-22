@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -10,8 +10,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
-function Header(props) {
+function Header() {
   const location = useLocation()
+  const navigate = useNavigate()
 
   const capitalize = (s) => {
       if (typeof s !== 'string') return ''
@@ -77,8 +78,8 @@ function Header(props) {
 
     localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
     localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
-    // props.updateTitle('Login')
-    props.history.push('/login')
+
+    navigate('/login')
   }
 
   return(

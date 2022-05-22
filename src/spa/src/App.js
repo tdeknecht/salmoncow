@@ -30,7 +30,8 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path='/register' element={<RegistrationForm />} />
-            <Route path='/login' element={<LoginPage />} />
+            <Route path='/login' element={<LoginForm />} />
+            <Route path='/loginpage' element={<LoginPage />} />
             <Route
               path="/protected"
               element={
@@ -49,30 +50,39 @@ function Layout() {
   return (
     <div>
       <Header />
-        <Grid
-          container
-          spacing={0}
-          direction='column'
-          alignItems='center'
-          style={{ minHeight: '100vh' }}
-        >
-        <img src={logo} className='logo' alt='logo' />
+      <Grid
+        container
+        spacing={0}
+        direction='column'
+        alignItems='center'
+        style={{ minHeight: '100vh' }}
+      >
+      <img src={logo} className='logo' alt='logo' />
 
-        {/* <AuthStatus /> */}
+      <AuthStatus />
 
-        <ul>
-          <li>
-            <Link to="/">Public Page</Link>
-          </li>
-          <li>
-            <Link to="/protected">Protected Page</Link>
-          </li>
-        </ul>
+      <ul>
+        <li>
+          <Link to="/">Public Page</Link>
+        </li>
+        <li>
+          <Link to="/protected">Protected Page</Link>
+        </li>
+        <li>
+          <Link to="/loginpage">Demo Login Page</Link>
+        </li>
+        <li>
+          <Link to="/login">Login Page</Link>
+        </li>
+        <li>
+          <Link to="/register">Registration Page</Link>
+        </li>
+      </ul>
 
-        <Outlet />
+      <Outlet />
       <p className='footer'>
-          This is a dev site. It's simply a fun <a href='https://github.com/tdeknecht/salmoncow' target='_blank' rel='noopener noreferrer'>side project</a>.
-        </p>
+        This is a dev site. It's simply a fun <a href='https://github.com/tdeknecht/salmoncow' target='_blank' rel='noopener noreferrer'>side project</a>.
+      </p>
       </Grid>
     </div>
   );
@@ -194,5 +204,5 @@ function LoginPage() {
 }
 
 function ProtectedPage() {
-  return <h3><AuthStatus /></h3>;
+  return <h3>Protected page</h3>;
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
@@ -12,7 +12,9 @@ import Link from '@mui/material/Link';
 
 import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
-function LoginForm(props) {
+function LoginForm() {
+  const navigate = useNavigate()
+
   const [state , setState] = useState({
     email : '',
     password : '',
@@ -36,6 +38,7 @@ function LoginForm(props) {
   const [alertContent, setAlertContent] = useState('');
 
   const awsCognitoLogin = (p) => {
+
     const loginDetails={
       'Username' : p.email,
       'Password' : p.password,
@@ -48,7 +51,7 @@ function LoginForm(props) {
           ...prevState,
           'successMessage' : "Authentication successful."
         }))
-        redirectToHome();
+        navigate('/protected');
       })
       .catch(err => {
         setAlertContent(err.message || JSON.stringify(err));
@@ -57,16 +60,6 @@ function LoginForm(props) {
         setButtonLoading(false);
         setDisableButton(false);
       });
-  }
-
-  const redirectToHome = () => {
-    // props.updateTitle('Home');
-    props.history.push('/');
-  }
-
-  const redirectToRegister = () => {
-    // props.updateTitle('Register');
-    props.history.push('/register'); 
   }
 
   const onClick = (e) => {
@@ -154,7 +147,7 @@ function LoginForm(props) {
           sx={{
             ml: '10px',
           }}
-          onClick={() => redirectToRegister()}
+          onClick={() => navigate('/register')}
         >
           Register here
         </Link>
