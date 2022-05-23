@@ -28,7 +28,8 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
+            <Route index element={<Home />} />
+            <Route path="/home" element={<Home />} />
             <Route path='/register' element={<RegistrationForm />} />
             <Route path='/login' element={<LoginForm />} />
             <Route path='/loginpage' element={<LoginPage />} />
@@ -38,6 +39,14 @@ export default function App() {
                 <RequireAuth>
                   <ProtectedPage />
                 </RequireAuth>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <main style={{ padding: "1rem" }}>
+                  <p>There's nothing here!</p>
+                </main>
               }
             />
           </Route>
@@ -80,9 +89,11 @@ function Layout() {
       </ul>
 
       <Outlet />
+
       <p className='footer'>
         This is a dev site. It's simply a fun <a href='https://github.com/tdeknecht/salmoncow' target='_blank' rel='noopener noreferrer'>side project</a>.
       </p>
+
       </Grid>
     </div>
   );
