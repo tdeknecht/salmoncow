@@ -20,38 +20,41 @@ import logo from './images/salmoncow.png';
 import Home from './components/Home/Home';
 import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
+import { Dashboard } from './components/Dashboard/Dashboard';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
 import { fakeAuthProvider } from './utils/fakeAuthProvider';
+import { fakeAuthToken } from './utils/fakeAuthToken';
 
 export default function App() {
   return (
-      <AuthProvider>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="/home" element={<Home />} />
-            <Route path='/register' element={<RegistrationForm />} />
-            <Route path='/login' element={<LoginForm />} />
-            <Route path='/loginpage' element={<LoginPage />} />
-            <Route
-              path="/protected"
-              element={
-                <RequireAuth>
-                  <ProtectedPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="*"
-              element={
-                <main style={{ padding: "1rem" }}>
-                  <p>There's nothing here!</p>
-                </main>
-              }
-            />
-          </Route>
-        </Routes>
-      </AuthProvider>
+    <AuthProvider>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path='/register' element={<RegistrationForm />} />
+          <Route path='/login' element={<LoginForm />} />
+          <Route path='/loginpage' element={<LoginPage />} />
+          <Route path='/dashboard' element={<Dashboard />} />
+          <Route
+            path="/protected"
+            element={
+              <RequireAuth>
+                <ProtectedPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <main style={{ padding: "1rem" }}>
+                <p>There's nothing here!</p>
+              </main>
+            }
+          />
+        </Route>
+      </Routes>
+    </AuthProvider>
   );
 }
 
@@ -81,6 +84,9 @@ function Layout() {
           <Link to="/loginpage">Demo Login Page</Link>
         </li>
         <li>
+          <Link to="/dashboard">Dashboard Page</Link>
+        </li>
+        <li>
           <Link to="/login">Login Page</Link>
         </li>
         <li>
@@ -99,34 +105,26 @@ function Layout() {
   );
 }
 
-export const AuthContextType = {
-  user : null,
-  signin : (user, callback) => null,
-  signout : (callback) => null,
-}
-
-let AuthContext = React.createContext(
-  AuthContextType.null
-);
+const AuthContext = React.createContext(null);
 
 function AuthProvider({ children }) {
-  let [user, setUser] = React.useState(null);
+  const [token, setToken] = React.useState(null);
 
-  let signin = (newUser, callback) => {
-    return fakeAuthProvider.signin(() => {
-      setUser(newUser);
-      callback();
-    });
+  const handleLogin = async() => {
+    const token = await fakeAuthToken();
+
+    setToken(token);
   };
 
-  let signout = (callback) => {
-    return fakeAuthProvider.signout(() => {
-      setUser(null);
-      callback();
-    });
+  const handleLogout = () => {
+    setToken(null);
   };
 
-  let value = { user, signin, signout };
+  const value = {
+    token,
+    onLogin: handleLogin,
+    onLogout: handleLogout,
+  };
 
   return (
     <AuthContext.Provider value={value}>
@@ -143,13 +141,13 @@ function AuthStatus() {
   let auth = useAuth();
   let navigate = useNavigate();
 
-  if (!auth.user) { // if used in Protected, remove this. Assumed already logged in
+  if (!auth.token) { // if used in Protected, remove this. Assumed already logged in
     return <p>You are not logged in.</p>;
   }
 
   return (
     <p>
-      Welcome {auth.user}!{' '}
+      Welcome {auth.token}!{' '}
       <button
         onClick={() => {
           auth.signout(() => navigate('/'));
@@ -165,7 +163,7 @@ function RequireAuth({ children }) {
   let auth = useAuth();
   let location = useLocation();
 
-  if (!auth.user) {
+  if (!auth.token) {
     // Redirect them to the /login page, but save the current location they were
     // trying to go to when they were redirected. This allows us to send them
     // along to that page after they login, which is a nicer user experience
@@ -187,9 +185,9 @@ function LoginPage() {
     event.preventDefault();
 
     let formData = new FormData(event.currentTarget);
-    let username = formData.get('username');
+    let token = formData.get('token');
 
-    auth.signin(username, () => {
+    auth.signin(token, () => {
       // Send them back to the page they tried to visit when they were
       // redirected to the login page. Use { replace: true } so we don't create
       // another entry in the history stack for the login page.  This means that
@@ -206,7 +204,7 @@ function LoginPage() {
 
       <form onSubmit={handleSubmit}>
         <label>
-          Username: <input name="username" type="text" />
+          Token: <input name="token" type="text" />
         </label>{' '}
         <button type="submit">Login</button>
       </form>
