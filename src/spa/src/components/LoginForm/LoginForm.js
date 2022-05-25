@@ -88,8 +88,8 @@ function LoginForm() {
     }
 
     // auth.onLogin(loginProps)
-    auth.onLogin(loginProps, () => {
-    // auth.signin(loginProps, () => {
+    // auth.onLogin(loginProps, () => {
+    auth.signin(loginProps, () => {
       console.log("I hit the callback!")
       navigate(from, { replace: true });
     });
