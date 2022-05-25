@@ -1,15 +1,16 @@
 /**
- * This represents some generic auth provider API, like Firebase.
+ * This represents some generic auth provider API, like Firebase. 
+ * It shouldn't be part of my code design, but acts as an API
  */
 const fakeAuthProvider = {
   isAuthenticated: false,
   signin(callback) {
     fakeAuthProvider.isAuthenticated = true;
-    setTimeout(callback, 100); // fake async
+    setTimeout(callback, 250); // fake async
   },
   signout(callback) {
     fakeAuthProvider.isAuthenticated = false;
-    setTimeout(callback, 100);
+    setTimeout(callback, 250);
   },
 };
   

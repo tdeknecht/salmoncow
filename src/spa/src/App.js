@@ -22,20 +22,27 @@ import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
-import { fakeAuthProvider } from './utils/fakeAuthProvider';
-import { fakeAuthToken } from './utils/fakeAuthToken';
+// import { fakeAuthProvider } from './utils/fakeAuthProvider';
+import { DemoAuthContext, DemoAuthProvider } from './utils/DemoAuthProvider';
 
 export default function App() {
   return (
-    <AuthProvider>
+    <DemoAuthProvider>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path='/register' element={<RegistrationForm />} />
           <Route path='/login' element={<LoginForm />} />
-          <Route path='/loginpage' element={<LoginPage />} />
-          <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/loginpage' element={<DemoLoginPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <RequireAuth>
+                <Dashboard />
+              </RequireAuth>
+            }
+          />
           <Route
             path="/protected"
             element={
@@ -54,7 +61,7 @@ export default function App() {
           />
         </Route>
       </Routes>
-    </AuthProvider>
+    </DemoAuthProvider>
   );
 }
 
@@ -75,23 +82,23 @@ function Layout() {
 
       <ul>
         <li>
-          <Link to="/">Public Page</Link>
+          <Link to="/">Demo Public Page</Link>
         </li>
         <li>
-          <Link to="/protected">Protected Page</Link>
+          <Link to="/protected">Demo Protected Page</Link>
         </li>
         <li>
           <Link to="/loginpage">Demo Login Page</Link>
         </li>
         <li>
-          <Link to="/dashboard">Dashboard Page</Link>
+          <Link to="/dashboard">Demo Dashboard Page</Link>
         </li>
-        <li>
+        {/* <li>
           <Link to="/login">Login Page</Link>
         </li>
         <li>
           <Link to="/register">Registration Page</Link>
-        </li>
+        </li> */}
       </ul>
 
       <Outlet />
@@ -105,36 +112,8 @@ function Layout() {
   );
 }
 
-const AuthContext = React.createContext(null);
-
-function AuthProvider({ children }) {
-  const [token, setToken] = React.useState(null);
-
-  const handleLogin = async() => {
-    const token = await fakeAuthToken();
-
-    setToken(token);
-  };
-
-  const handleLogout = () => {
-    setToken(null);
-  };
-
-  const value = {
-    token,
-    onLogin: handleLogin,
-    onLogout: handleLogout,
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
 function useAuth() {
-  return React.useContext(AuthContext);
+  return React.useContext(DemoAuthContext);
 }
 
 function AuthStatus() {
@@ -147,10 +126,11 @@ function AuthStatus() {
 
   return (
     <p>
-      Welcome {auth.token}!{' '}
+      {/* Welcome {auth.token}!{' '} */}
+      Welcome, user!
       <button
         onClick={() => {
-          auth.signout(() => navigate('/'));
+          auth.onLogout(() => navigate('/'));
         }}
       >
         Sign out
@@ -160,8 +140,8 @@ function AuthStatus() {
 }
 
 function RequireAuth({ children }) {
-  let auth = useAuth();
-  let location = useLocation();
+  const auth = useAuth();
+  const location = useLocation();
 
   if (!auth.token) {
     // Redirect them to the /login page, but save the current location they were
@@ -174,8 +154,7 @@ function RequireAuth({ children }) {
   return children;
 }
 
-function LoginPage() {
-  let navigate = useNavigate();
+function DemoLoginPage() {
   let location = useLocation();
   let auth = useAuth();
 
@@ -185,16 +164,17 @@ function LoginPage() {
     event.preventDefault();
 
     let formData = new FormData(event.currentTarget);
-    let token = formData.get('token');
 
-    auth.signin(token, () => {
-      // Send them back to the page they tried to visit when they were
-      // redirected to the login page. Use { replace: true } so we don't create
-      // another entry in the history stack for the login page.  This means that
-      // when they get to the protected page and click the back button, they
-      // won't end up back on the login page, which is also really nice for the
-      // user experience.
-      navigate(from, { replace: true });
+    const loginProps={
+      loginDetails : {
+        'Username' : formData.get('username'),
+        'Password' : formData.get('password'),
+      },
+      from : from,
+    }
+
+    auth.onLogin(loginProps, () => {
+      console.log("navigate() used to be here, but isn't getting called for some reason...")
     });
   }
 
@@ -204,7 +184,10 @@ function LoginPage() {
 
       <form onSubmit={handleSubmit}>
         <label>
-          Token: <input name="token" type="text" />
+          Username: <input name="username" type="text" />
+        </label>{' '}
+        <label>
+          Password: <input name="password" type="text" />
         </label>{' '}
         <button type="submit">Login</button>
       </form>

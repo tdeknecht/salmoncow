@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
@@ -10,19 +10,10 @@ import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
 
-import { DemoAuthContext, DemoAuthProvider } from '../../utils/DemoAuthProvider';
 import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
-function useAuth() {
-  return React.useContext(DemoAuthContext);
-}
-
 function LoginForm() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const auth = useAuth();
-
-  const from = location.state?.from?.pathname || '/';
 
   const [state , setState] = useState({
     email : '',
@@ -46,32 +37,30 @@ function LoginForm() {
   const [alert, setAlert] = useState(false);
   const [alertContent, setAlertContent] = useState('');
 
-  // const awsCognitoLogin = (p) => { // this is like handleLogin in DemoAuthProvider
+  const awsCognitoLogin = (p) => {
 
-  //   const loginDetails={
-  //     'Username' : p.email,
-  //     'Password' : p.password,
-  //   }
+    const loginDetails={
+      'Username' : p.email,
+      'Password' : p.password,
+    }
 
-  //   LoginCognitoUser(loginDetails) // this is the same as AuthProvider
-  //     .then(tokenSet => {
-  //       localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
-  //       // setToken(tokenSet.getIdToken().getJwtToken())
-  //       setState(prevState => ({
-  //         ...prevState,
-  //         'successMessage' : "Authentication successful."
-  //       }))
-  //       navigate(from, { replace: true });
-  //     })
-  //     .catch(err => {
-  //       console.log("hit the error in LoginCognitoUser")
-  //       setAlertContent(err.message || JSON.stringify(err));
-  //       setAlert(true);
+    LoginCognitoUser(loginDetails)
+      .then(tokenSet => {
+        localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
+        setState(prevState => ({
+          ...prevState,
+          'successMessage' : "Authentication successful."
+        }))
+        navigate('/protected');
+      })
+      .catch(err => {
+        setAlertContent(err.message || JSON.stringify(err));
+        setAlert(true);
 
-  //       setButtonLoading(false);
-  //       setDisableButton(false);
-  //     });
-  // }
+        setButtonLoading(false);
+        setDisableButton(false);
+      });
+  }
 
   const onClick = (event) => {
     event.preventDefault();
@@ -79,25 +68,10 @@ function LoginForm() {
     setButtonLoading(true);
     setDisableButton(true);
 
-    const loginProps={
-      loginDetails : {
-        'Username' : state.email,
-        'Password' : state.password,
-      },
-      from : from,
-    }
-
-    // auth.onLogin(loginProps)
-    auth.onLogin(loginProps, () => {
-    // auth.signin(loginProps, () => {
-      console.log("I hit the callback!")
-      navigate(from, { replace: true });
+    awsCognitoLogin({
+      email: state.email, 
+      password: state.password,
     });
-
-    // awsCognitoLogin({
-    //   email: state.email, 
-    //   password: state.password,
-    // });
   }
   return(
     <Box
