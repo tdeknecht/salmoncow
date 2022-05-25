@@ -1,49 +1,25 @@
 import React from 'react';
-// import { useNavigate } from 'react-router-dom';
 
-import { fakeAuthProvider } from './fakeAuthProvider';
+export const AuthContext = React.createContext(null);
 
-export const DemoAuthContext = React.createContext(null);
-
-export function DemoAuthProvider({ children }) {
-  // const navigate = useNavigate();
+export function AuthProvider({ children }) {
 
   const [token, setToken] = React.useState(null);
 
-  const onLogin = (p, callback) => { // `async(p, callback)` approach requires await on call. Redundant to Promise below.
-    // log in user and get token
-    // const token = fakeAuthToken(); // `await fakeAuthToken()` bound to async() above
-
+  const onLogin = (p, callback) => {
     loginCognitoUser(p.loginDetails)
       .then(tokenSet => {
         localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
         setToken(tokenSet.getIdToken().getJwtToken())
-        console.log("Login successful")
 
-        // Send them back to the page they tried to visit when they were
-        // redirected to the login page. Use { replace: true } so we don't create
-        // another entry in the history stack for the login page.  This means that
-        // when they get to the protected page and click the back button, they
-        // won't end up back on the login page, which is also really nice for the
-        // user experience.
-
-        // navigate(p.from, { replace: true });
         callback();
       })
       .catch(err => {
-        console.log(err)
-        // setAlertContent(err.message || JSON.stringify(err));
-        // setAlert(true);
-
-        // setButtonLoading(false);
-        // setDisableButton(false);
         callback(err)
       });
   };
 
-  // const handleLogout = () => {
   const onLogout = () => {
-    // remove refresh token here and set token to null
     // add new LogoutCognitoUser logic to truly log them out of Cognito
 
     localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
@@ -67,15 +43,12 @@ export function DemoAuthProvider({ children }) {
     onLogout,
 
     signin, // a very simple version to test with
-
-    // onLogin: handleLogin,
-    // onLogout: handleLogout,
   };
 
   return (
-    <DemoAuthContext.Provider value={value}>
+    <AuthContext.Provider value={value}>
       {children}
-    </DemoAuthContext.Provider>
+    </AuthContext.Provider>
   );
 }
 
@@ -106,4 +79,17 @@ function loginCognitoUser(loginDetails) {
     })
   );
 }
+
+// This represents some generic auth provider API, like Firebase.
+const fakeAuthProvider = {
+  isAuthenticated: false,
+  signin(callback) {
+    fakeAuthProvider.isAuthenticated = true;
+    setTimeout(callback, 250); // fake async
+  },
+  signout(callback) {
+    fakeAuthProvider.isAuthenticated = false;
+    setTimeout(callback, 250);
+  },
+};
 

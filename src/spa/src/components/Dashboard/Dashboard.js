@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { DemoAuthContext } from '../../utils/DemoAuthProvider';
+import { AuthContext } from '../../utils/AuthProvider';
 
 const Dashboard = () => {
-  const { token } = React.useContext(DemoAuthContext);
+  const { token } = React.useContext(AuthContext);
 
   return (
     <>

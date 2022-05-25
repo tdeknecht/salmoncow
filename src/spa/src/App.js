@@ -23,11 +23,11 @@ import LoginForm from './components/LoginForm/LoginForm';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
 // import { fakeAuthProvider } from './utils/fakeAuthProvider';
-import { DemoAuthContext, DemoAuthProvider } from './utils/DemoAuthProvider';
+import { AuthContext, AuthProvider } from './utils/AuthProvider';
 
 export default function App() {
   return (
-    <DemoAuthProvider>
+    <AuthProvider>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
@@ -61,7 +61,7 @@ export default function App() {
           />
         </Route>
       </Routes>
-    </DemoAuthProvider>
+    </AuthProvider>
   );
 }
 
@@ -113,7 +113,7 @@ function Layout() {
 }
 
 function useAuth() {
-  return React.useContext(DemoAuthContext);
+  return React.useContext(AuthContext);
 }
 
 function AuthStatus() {

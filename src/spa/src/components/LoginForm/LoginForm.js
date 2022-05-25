@@ -10,11 +10,10 @@ import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
 
-import { DemoAuthContext, DemoAuthProvider } from '../../utils/DemoAuthProvider';
-import LoginCognitoUser from '../../utils/LoginCognitoUser'
+import { AuthContext, AuthProvider } from '../../utils/AuthProvider';
 
 function useAuth() {
-  return React.useContext(DemoAuthContext);
+  return React.useContext(AuthContext);
 }
 
 function LoginForm() {
@@ -46,33 +45,6 @@ function LoginForm() {
   const [alert, setAlert] = useState(false);
   const [alertContent, setAlertContent] = useState('');
 
-  // const awsCognitoLogin = (p) => { // this is like handleLogin in DemoAuthProvider
-
-  //   const loginDetails={
-  //     'Username' : p.email,
-  //     'Password' : p.password,
-  //   }
-
-  //   LoginCognitoUser(loginDetails) // this is the same as AuthProvider
-  //     .then(tokenSet => {
-  //       localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
-  //       // setToken(tokenSet.getIdToken().getJwtToken())
-  //       setState(prevState => ({
-  //         ...prevState,
-  //         'successMessage' : "Authentication successful."
-  //       }))
-  //       navigate(from, { replace: true });
-  //     })
-  //     .catch(err => {
-  //       console.log("hit the error in LoginCognitoUser")
-  //       setAlertContent(err.message || JSON.stringify(err));
-  //       setAlert(true);
-
-  //       setButtonLoading(false);
-  //       setDisableButton(false);
-  //     });
-  // }
-
   const onClick = (event) => {
     event.preventDefault();
 
@@ -87,17 +59,23 @@ function LoginForm() {
       from : from,
     }
 
-    // auth.onLogin(loginProps)
-    // auth.onLogin(loginProps, () => {
-    auth.signin(loginProps, () => {
-      console.log("I hit the callback!")
-      navigate(from, { replace: true });
-    });
+    auth.onLogin(loginProps, (err) => {
+      if(!err) {
+        // Send them back to the page they tried to visit when they were
+        // redirected to the login page. Use { replace: true } so we don't create
+        // another entry in the history stack for the login page.  This means that
+        // when they get to the protected page and click the back button, they
+        // won't end up back on the login page, which is also really nice for the
+        // user experience.
+        navigate(from, { replace: true });
+      }
 
-    // awsCognitoLogin({
-    //   email: state.email, 
-    //   password: state.password,
-    // });
+      setAlertContent(err.message || JSON.stringify(err));
+      setAlert(true);
+
+      setButtonLoading(false);
+      setDisableButton(false);
+    });
   }
   return(
     <Box
