@@ -101,7 +101,7 @@ function RegistrationForm(props) {
       .then(() => {
         LoginCognitoUser({'Username':state.email, 'Password':state.password})
         .then(tokenSet => {
-          localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
+          localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
           setState(prevState => ({
             ...prevState,
             'successMessage' : "Authentication successful."

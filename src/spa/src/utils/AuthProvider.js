@@ -4,12 +4,13 @@ export const AuthContext = React.createContext(null);
 
 export function AuthProvider({ children }) {
 
-  const [token, setToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN));
+  const [token, setToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
 
   const onLogin = (p, callback) => {
     loginCognitoUser(p.loginDetails)
       .then(tokenSet => {
-        localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
+        // accessToken, idToken, refreshToken
+        localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
         setToken(tokenSet.getIdToken().getJwtToken())
 
         callback();
