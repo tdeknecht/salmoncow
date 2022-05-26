@@ -20,9 +20,8 @@ import logo from './images/salmoncow.png';
 import Home from './components/Home/Home';
 import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
-import { Dashboard } from './components/Dashboard/Dashboard';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
-// import { fakeAuthProvider } from './utils/fakeAuthProvider';
+import { Dashboard } from './components/Dashboard/Dashboard';
 import { AuthContext, AuthProvider } from './utils/AuthProvider';
 
 export default function App() {
@@ -34,7 +33,6 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path='/register' element={<RegistrationForm />} />
           <Route path='/login' element={<LoginForm />} />
-          <Route path='/loginpage' element={<DemoLoginPage />} />
           <Route
             path="/dashboard"
             element={
@@ -44,18 +42,10 @@ export default function App() {
             }
           />
           <Route
-            path="/protected"
-            element={
-              <RequireAuth>
-                <ProtectedPage />
-              </RequireAuth>
-            }
-          />
-          <Route
             path="*"
             element={
               <main style={{ padding: "1rem" }}>
-                <p>There's nothing here!</p>
+                <p>404 Page not found.</p>
               </main>
             }
           />
@@ -82,23 +72,11 @@ function Layout() {
 
       <ul>
         <li>
-          <Link to="/">Demo Public Page</Link>
+          <Link to="/">Home (Public)</Link>
         </li>
         <li>
-          <Link to="/protected">Demo Protected Page</Link>
+          <Link to="/dashboard">Dashboard (Private)</Link>
         </li>
-        <li>
-          <Link to="/loginpage">Demo Login Page</Link>
-        </li>
-        <li>
-          <Link to="/dashboard">Demo Dashboard Page</Link>
-        </li>
-        {/* <li>
-          <Link to="/login">Login Page</Link>
-        </li>
-        <li>
-          <Link to="/register">Registration Page</Link>
-        </li> */}
       </ul>
 
       <Outlet />
@@ -152,49 +130,4 @@ function RequireAuth({ children }) {
   }
 
   return children;
-}
-
-function DemoLoginPage() {
-  let location = useLocation();
-  let auth = useAuth();
-
-  let from = location.state?.from?.pathname || '/';
-
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    let formData = new FormData(event.currentTarget);
-
-    const loginProps={
-      loginDetails : {
-        'Username' : formData.get('username'),
-        'Password' : formData.get('password'),
-      },
-      from : from,
-    }
-
-    auth.onLogin(loginProps, () => {
-      console.log("navigate() used to be here, but isn't getting called for some reason...")
-    });
-  }
-
-  return (
-    <div>
-      <p>You must log in to view the page at {from}</p>
-
-      <form onSubmit={handleSubmit}>
-        <label>
-          Username: <input name="username" type="text" />
-        </label>{' '}
-        <label>
-          Password: <input name="password" type="text" />
-        </label>{' '}
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
-}
-
-function ProtectedPage() {
-  return <h3>Protected page</h3>;
 }

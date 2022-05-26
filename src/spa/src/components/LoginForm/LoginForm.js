@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
 
-import { AuthContext, AuthProvider } from '../../utils/AuthProvider';
+import { AuthContext } from '../../utils/AuthProvider';
 
 function useAuth() {
   return React.useContext(AuthContext);

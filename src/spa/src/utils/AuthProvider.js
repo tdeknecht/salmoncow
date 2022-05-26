@@ -28,21 +28,29 @@ export function AuthProvider({ children }) {
     setToken(null);
   };
 
-  const signin = (loginDetails, callback) => {
-    console.log(loginDetails)
-    return fakeAuthProvider.signin(() => {
-      setToken("abc123");
-      callback();
-    });
-  };
+  // const fakeSigninA = (loginDetails, callback) => {
+  //   console.log(loginDetails)
+  //   return fakeAuthProvider.signin(() => {
+  //     setToken("abc123");
+  //     callback();
+  //   });
+  // };
 
+  // const fakeSigninB = async () => {
+  //   const token = await fakeAuthToken();
+
+  //   setToken(token);
+  //   navigate('/dashboard');
+  // };
 
   const value = {
     token,
     onLogin,
     onLogout,
+    // onRegister, // TODO
 
-    signin, // a very simple version to test with
+    // fakeSigninA, // a very simple version to test with
+    // fakeSigninB,
   };
 
   return (
@@ -81,15 +89,20 @@ function loginCognitoUser(loginDetails) {
 }
 
 // This represents some generic auth provider API, like Firebase.
-const fakeAuthProvider = {
-  isAuthenticated: false,
-  signin(callback) {
-    fakeAuthProvider.isAuthenticated = true;
-    setTimeout(callback, 250); // fake async
-  },
-  signout(callback) {
-    fakeAuthProvider.isAuthenticated = false;
-    setTimeout(callback, 250);
-  },
-};
+// const fakeAuthProvider = {
+//   isAuthenticated: false,
+//   signin(callback) {
+//     fakeAuthProvider.isAuthenticated = true;
+//     setTimeout(callback, 250); // fake async
+//   },
+//   signout(callback) {
+//     fakeAuthProvider.isAuthenticated = false;
+//     setTimeout(callback, 250);
+//   },
+// };
+
+// const fakeAuthToken = () =>
+//   new Promise((resolve) => {
+//     setTimeout(() => resolve('abc123'), 250);
+// });
 
