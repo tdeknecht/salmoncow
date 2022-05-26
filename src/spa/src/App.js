@@ -98,7 +98,7 @@ function AuthStatus() {
   let auth = useAuth();
   let navigate = useNavigate();
 
-  if (!auth.token) { // if used in Protected, remove this. Assumed already logged in
+  if (!auth.token) {
     return <p>You are not logged in.</p>;
   }
 

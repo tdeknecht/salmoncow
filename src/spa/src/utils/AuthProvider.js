@@ -4,7 +4,7 @@ export const AuthContext = React.createContext(null);
 
 export function AuthProvider({ children }) {
 
-  const [token, setToken] = React.useState(null);
+  const [token, setToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN));
 
   const onLogin = (p, callback) => {
     loginCognitoUser(p.loginDetails)
