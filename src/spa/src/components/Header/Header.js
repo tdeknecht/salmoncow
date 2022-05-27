@@ -10,9 +10,16 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
+import { AuthContext } from '../../utils/AuthProvider';
+
+function useAuth() {
+  return React.useContext(AuthContext);
+}
+
 function Header() {
   const location = useLocation()
   const navigate = useNavigate()
+  const auth = useAuth();
 
   const capitalize = (s) => {
       if (typeof s !== 'string') return ''
@@ -34,52 +41,40 @@ function Header() {
   };
 
   function renderProfile() {
-    return(
-      <div>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="menu-appbar"
-          aria-haspopup="true"
-          onClick={handleMenu}
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <Menu
-          id="menu-appbar"
-          anchorEl={anchorEl}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          keepMounted
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          <MenuItem>Profile</MenuItem>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
-        </Menu>
-      </div>
-    )
-  }
-
-  function handleLogout() {
-    handleClose() // needed to prevent anchorEl not existing if user immediately logs back in
-
-    // TODO: Find a way to truly log out, not just delete local token
-    // const { store } = this.context;
-    // const state = store.getState();
-    // state.cognito.user.signOut();
-
-    localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
-    localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
-
-    navigate('/login')
+    if (auth.token) {
+      return(
+        <div>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+            color="inherit"
+          >
+            <AccountCircle />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={() => navigate('/dashboard')}>Dashboard</MenuItem>
+            <MenuItem onClick={() => {auth.onLogout(() => navigate('/'))}}>Logout</MenuItem>
+          </Menu>
+        </div>
+      )
+    }
   }
 
   return(

@@ -6,7 +6,6 @@ import {
   Routes,
   Route,
   Link,
-  useNavigate,
   useLocation,
   Navigate,
   Outlet,
@@ -96,25 +95,10 @@ function useAuth() {
 
 function AuthStatus() {
   let auth = useAuth();
-  let navigate = useNavigate();
 
   if (!auth.token) {
     return <p>You are not logged in.</p>;
   }
-
-  return (
-    <p>
-      {/* Welcome {auth.token}!{' '} */}
-      Welcome, user!
-      <button
-        onClick={() => {
-          auth.onLogout(() => navigate('/'));
-        }}
-      >
-        Sign out
-      </button>
-    </p>
-  );
 }
 
 function RequireAuth({ children }) {
