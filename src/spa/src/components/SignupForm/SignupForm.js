@@ -123,7 +123,7 @@ function RegistrationForm() {
 
   return(
     <Box
-      component="form"
+      component='form'
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -131,32 +131,32 @@ function RegistrationForm() {
         '& > :not(style)': { m: 1, width: '35ch' },
       }}
       noValidate
-      autoComplete="off"
+      autoComplete='off'
     >
       <TextField
-        id="email"
+        id='email'
         label="E-mail"
-        variant="standard"
+        variant='standard'
         required
-        type="email"
+        type='email'
         value={state.email}
         onChange={handleChange}
       />
       <TextField
-          id="password"
+          id='password'
           label="Password"
-          variant="standard"
+          variant='standard'
           required
-          type="password"
+          type='password'
           value={state.password}
           onChange={handleChange}
       />
       <TextField
-          id="confirmPassword"
+          id='confirmPassword'
           label="Confirm Password"
-          variant="standard"
+          variant='standard'
           required
-          type="password"
+          type='password'
           value={state.confirmPassword}
           onChange={handleChange}
       />
@@ -178,17 +178,17 @@ function RegistrationForm() {
       </LoadingButton>
       <Collapse in={alert}>
         <Alert
-          severity="error"
+          severity='error'
           action={
             <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
+              aria-label='close'
+              color='inherit'
+              size='small'
               onClick={() => {
                 setAlert(false);
               }}
             >
-              <CloseIcon fontSize="inherit" />
+              <CloseIcon fontSize='inherit' />
             </IconButton>
           }
           sx={{ mb: 2 }}

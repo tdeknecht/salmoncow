@@ -16,7 +16,7 @@ function useAuth() {
   return React.useContext(AuthContext);
 }
 
-function Header() {
+export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const auth = useAuth();
@@ -28,40 +28,47 @@ function Header() {
   let title = capitalize(location.pathname.substring(1,location.pathname.length))
 
   if(location.pathname === '/') {
-    title = 'Welcome'
+    title = 'Home'
   }
 
-  // profile menu
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
-  // BUG: when a new signup occurs or you log in, then log out, then log back in, the following error 
-  //   occurs along with the profile menu appears on the top left-hand side:
-  //     Warning: Failed prop type: MUI: The `anchorEl` prop provided to the component is invalid.
-  //     The anchor element should be part of the document layout.
-  //     Make sure the element is present in the document or that it's not display none.
-
-  function renderProfile() {
+  function renderProfileMenuOptions() {
     if (auth.token) {
       return(
         <div>
+          <MenuItem onClick={() => {navigate('/dashboard'); setAnchorEl(null)}}>Dashboard</MenuItem>
+          <MenuItem onClick={() => {auth.onLogout(() => navigate('/')); setAnchorEl(null)}}>Logout</MenuItem>
+        </div>
+      )
+    } else {
+      return(
+        <div>
+          <MenuItem onClick={() => {navigate('/dashboard'); setAnchorEl(null)}}>Dashboard</MenuItem>
+        </div>
+      )
+    }
+  }
+
+  return(
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position='fixed'>
+        <Toolbar>
+          <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
+            {title}
+          </Typography>
           <IconButton
-            size="large"
+            size='large'
             aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-            color="inherit"
+            aria-controls='menu-appbar'
+            aria-haspopup='true'
+            onClick={(event) => setAnchorEl(event.currentTarget)}
+            color='inherit'
           >
             <AccountCircle />
           </IconButton>
           <Menu
-            id="menu-appbar"
+            id='menu-appbar'
             anchorEl={anchorEl}
             anchorOrigin={{
               vertical: 'top',
@@ -73,28 +80,13 @@ function Header() {
               horizontal: 'right',
             }}
             open={Boolean(anchorEl)}
-            onClose={handleClose}
+            onClose={() => setAnchorEl(null)}
           >
-            <MenuItem onClick={() => navigate('/dashboard')}>Dashboard</MenuItem>
-            <MenuItem onClick={() => {auth.onLogout(() => navigate('/'))}}>Logout</MenuItem>
+            {renderProfileMenuOptions()}
           </Menu>
-        </div>
-      )
-    }
-  }
-
-  return(
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="fixed">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {title}
-          </Typography>
-          {renderProfile()}
         </Toolbar>
       </AppBar>
       <Toolbar />
     </Box>
   )
 }
-export default Header;

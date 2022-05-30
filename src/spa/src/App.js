@@ -29,11 +29,11 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="/home" element={<Home />} />
+          <Route path='/home' element={<Home />} />
           <Route path='/signup' element={<SignupForm />} />
           <Route path='/login' element={<LoginForm />} />
           <Route
-            path="/dashboard"
+            path='/dashboard'
             element={
               <RequireAuth>
                 <Dashboard />
@@ -41,9 +41,9 @@ export default function App() {
             }
           />
           <Route
-            path="*"
+            path='*'
             element={
-              <main style={{ padding: "1rem" }}>
+              <main style={{ padding: '1rem' }}>
                 <p>404 Page not found.</p>
               </main>
             }
@@ -65,25 +65,13 @@ function Layout() {
         alignItems='center'
         style={{ minHeight: '100vh' }}
       >
-      <img src={logo} className='logo' alt='logo' />
+        <Link to='/'><img src={logo} className='logo' alt='logo' /></Link>
 
-      <AuthStatus />
+        <Outlet />
 
-      <ul>
-        <li>
-          <Link to="/">Home (Public)</Link>
-        </li>
-        <li>
-          <Link to="/dashboard">Dashboard (Private)</Link>
-        </li>
-      </ul>
-
-      <Outlet />
-
-      <p className='footer'>
-        This is a dev site. It's simply a fun <a href='https://github.com/tdeknecht/salmoncow' target='_blank' rel='noopener noreferrer'>side project</a>.
-      </p>
-
+        <p className='footer'>
+          This is a dev site. It's simply a fun <a href='https://github.com/tdeknecht/salmoncow' target='_blank' rel='noopener noreferrer'>side project</a>.
+        </p>
       </Grid>
     </div>
   );
@@ -91,14 +79,6 @@ function Layout() {
 
 function useAuth() {
   return React.useContext(AuthContext);
-}
-
-function AuthStatus() {
-  let auth = useAuth();
-
-  if (!auth.token) {
-    return <p>You are not logged in.</p>;
-  }
 }
 
 function RequireAuth({ children }) {
@@ -110,7 +90,7 @@ function RequireAuth({ children }) {
     // trying to go to when they were redirected. This allows us to send them
     // along to that page after they login, which is a nicer user experience
     // than dropping them off on the home page.
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to='/login' state={{ from: location }} replace />;
   }
 
   return children;

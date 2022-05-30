@@ -23,13 +23,15 @@ export function AuthProvider({ children }) {
       });
   };
 
-  const onLogout = () => {
+  const onLogout = (callback) => {
     // add new LogoutCognitoUser logic to truly log them out of Cognito
 
     localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
     localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
     
     setToken(null);
+
+    callback();
   };
 
   const onSignup = (signupDetails, callback) => {
