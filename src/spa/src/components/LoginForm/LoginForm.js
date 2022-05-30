@@ -148,9 +148,9 @@ function LoginForm() {
           sx={{
             ml: '10px',
           }}
-          onClick={() => navigate('/register')}
+          onClick={() => navigate('/signup')}
         >
-          Register here
+          Signup here
         </Link>
       </Box>
     </Box>

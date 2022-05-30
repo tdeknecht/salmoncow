@@ -48,7 +48,7 @@ function RegistrationForm() {
 
   const recaptchaRef = React.createRef();
 
-  // use case 2: Confirming a registered, unauthenticated user using a confirmation code received via email
+  // use case 2: Confirming a signed up, unauthenticated user using a confirmation code received via email
   // const confirmUser = (cognitoUser) => {
   //   const confirmCode = prompt('Confirmation code:')
   //   cognitoUser.confirmRegistration(confirmCode, true, function(err, result) {
@@ -177,7 +177,7 @@ function RegistrationForm() {
         variant='outlined'
         type='submit'
       >
-        Register
+        Signup
       </LoadingButton>
       <Collapse in={alert}>
         <Alert

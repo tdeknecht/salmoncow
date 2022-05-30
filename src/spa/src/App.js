@@ -19,7 +19,7 @@ import logo from './images/salmoncow.png';
 import Home from './components/Home/Home';
 import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
-import RegistrationForm from './components/RegistrationForm/RegistrationForm';
+import SignupForm from './components/SignupForm/SignupForm';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { AuthContext, AuthProvider } from './utils/AuthProvider';
 
@@ -30,7 +30,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="/home" element={<Home />} />
-          <Route path='/register' element={<RegistrationForm />} />
+          <Route path='/signup' element={<SignupForm />} />
           <Route path='/login' element={<LoginForm />} />
           <Route
             path="/dashboard"
@@ -75,9 +75,6 @@ function Layout() {
         </li>
         <li>
           <Link to="/dashboard">Dashboard (Private)</Link>
-        </li>
-        <li>
-          <Link to="/register">Register</Link>
         </li>
       </ul>
 

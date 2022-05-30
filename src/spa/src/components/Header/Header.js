@@ -40,6 +40,12 @@ function Header() {
     setAnchorEl(null);
   };
 
+  // BUG: when a new signup occurs or you log in, then log out, then log back in, the following error 
+  //   occurs along with the profile menu appears on the top left-hand side:
+  //     Warning: Failed prop type: MUI: The `anchorEl` prop provided to the component is invalid.
+  //     The anchor element should be part of the document layout.
+  //     Make sure the element is present in the document or that it's not display none.
+
   function renderProfile() {
     if (auth.token) {
       return(
