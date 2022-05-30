@@ -51,15 +51,12 @@ function LoginForm() {
     setButtonLoading(true);
     setDisableButton(true);
 
-    const loginProps={
-      loginDetails : {
-        'Username' : state.email,
-        'Password' : state.password,
-      },
-      from : from,
+    const loginDetails = {
+      email : state.email,
+      password : state.password,
     }
 
-    auth.onLogin(loginProps, (err) => {
+    auth.onLogin(loginDetails, (err) => {
       if(!err) {
         // Send them back to the page they tried to visit when they were
         // redirected to the login page. Use { replace: true } so we don't create
@@ -68,13 +65,13 @@ function LoginForm() {
         // won't end up back on the login page, which is also really nice for the
         // user experience.
         navigate(from, { replace: true });
+      } else {
+        setAlertContent(err.message || JSON.stringify(err));
+        setAlert(true);
+  
+        setButtonLoading(false);
+        setDisableButton(false);
       }
-
-      setAlertContent(err.message || JSON.stringify(err));
-      setAlert(true);
-
-      setButtonLoading(false);
-      setDisableButton(false);
     });
   }
   return(

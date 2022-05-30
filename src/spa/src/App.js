@@ -76,6 +76,9 @@ function Layout() {
         <li>
           <Link to="/dashboard">Dashboard (Private)</Link>
         </li>
+        <li>
+          <Link to="/register">Register</Link>
+        </li>
       </ul>
 
       <Outlet />

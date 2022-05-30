@@ -6,8 +6,11 @@ export function AuthProvider({ children }) {
 
   const [token, setToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
 
-  const onLogin = (p, callback) => {
-    loginCognitoUser(p.loginDetails)
+  const onLogin = (loginDetails, callback) => {
+    loginCognitoUser({
+      'Username' : loginDetails.email,
+      'Password' : loginDetails.password,
+    })
       .then(tokenSet => {
         // accessToken, idToken, refreshToken
         localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
@@ -29,6 +32,16 @@ export function AuthProvider({ children }) {
     setToken(null);
   };
 
+  const onSignup = (signupDetails, callback) => {
+    signupCognitoUser(signupDetails)
+      .then(() => {
+        callback();
+      })
+      .catch(err => {
+        callback(err)
+      });
+  };
+
   // const fakeSigninA = (loginDetails, callback) => {
   //   console.log(loginDetails)
   //   return fakeAuthProvider.signin(() => {
@@ -48,7 +61,7 @@ export function AuthProvider({ children }) {
     token,
     onLogin,
     onLogout,
-    // onRegister, // TODO
+    onSignup,
 
     // fakeSigninA, // a very simple version to test with
     // fakeSigninB,
@@ -60,6 +73,8 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+// TODO: Move both loginCognitoUser and signupCognitoUser to above
 
 // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
 function loginCognitoUser(loginDetails) {
@@ -88,6 +103,30 @@ function loginCognitoUser(loginDetails) {
     })
   );
 }
+
+// https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
+function signupCognitoUser(signupDetails) {
+  const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+
+  const cognitoUserPool = new AmazonCognitoIdentity.CognitoUserPool({
+      UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+    });
+
+  const attributes = [
+      // { Name: 'name', Value: p.name }
+  ]
+
+  return new Promise((resolve, reject) => (
+      cognitoUserPool.signUp(signupDetails.email, signupDetails.password, attributes, signupDetails.validationData, (err, result) => {
+      if (err) {
+          reject(err);
+      }
+      resolve(result);
+      })
+  ));
+}
+
 
 // This represents some generic auth provider API, like Firebase.
 // const fakeAuthProvider = {

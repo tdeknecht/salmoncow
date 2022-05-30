@@ -11,7 +11,7 @@ const Dashboard = () => {
   const decodedToken = jwt_decode(token);
   const decodedTokenExp = new Date(decodedToken.exp * 1000).toString()
 
-  console.log(decodedToken)
+  // console.log(decodedToken)
 
   return (
     <>
