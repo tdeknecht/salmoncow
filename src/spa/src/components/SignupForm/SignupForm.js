@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha';
-import LoginCognitoUser from '../../utils/LoginCognitoUser'
 
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
@@ -12,7 +11,16 @@ import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
 
-function RegistrationForm(props) {
+import { AuthContext } from '../../utils/AuthProvider';
+
+function useAuth() {
+  return React.useContext(AuthContext);
+}
+
+function RegistrationForm() {
+  const navigate = useNavigate();
+  const auth = useAuth();
+
   const [state, setState] = useState({
     email : '',
     password : '',
@@ -37,30 +45,7 @@ function RegistrationForm(props) {
 
   const recaptchaRef = React.createRef();
 
-  const awsCognitoSignUp = (p) => {
-    // https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-    const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-    const poolData = {
-      UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-    }
-    const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-
-    const attributes = [
-      // { Name: 'name', Value: p.name }
-    ]
-
-    return new Promise((resolve, reject) => (
-      userPool.signUp(p.email, p.password, attributes, p.validationData, (err, result) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(result);
-      })
-    ));
-  }
-
-  // use case 2: Confirming a registered, unauthenticated user using a confirmation code received via email
+  // use case 2: Confirming a signed up, unauthenticated user using a confirmation code received via email
   // const confirmUser = (cognitoUser) => {
   //   const confirmCode = prompt('Confirmation code:')
   //   cognitoUser.confirmRegistration(confirmCode, true, function(err, result) {
@@ -72,23 +57,22 @@ function RegistrationForm(props) {
   //   });
   // }
 
-  const redirectToHome = () => {
-    props.updateTitle('Home');
-    props.history.push('/');
-  }
-
-  const redirectToLogin = () => {
-    props.updateTitle('Login');
-    props.history.push('/login'); 
-  }
-
-  const onClick = (e) => {
-    e.preventDefault();
+  const onClick = (event) => {
+    event.preventDefault();
 
     setButtonLoading(true);
     setDisableButton(true);
 
     const recaptchaToken = recaptchaRef.current.getValue();
+
+    const signupDetails = {
+      email: state.email, 
+      password: state.password,
+      validationData: [{
+        Name: 'recaptchaToken',
+        Value: recaptchaToken,
+      }],
+    }
 
     if (recaptchaToken === '') {
       setAlertContent("Are you a robot?");
@@ -97,36 +81,24 @@ function RegistrationForm(props) {
       setButtonLoading(false);
       setDisableButton(false);
     } else if(state.password === state.confirmPassword) {
-      awsCognitoSignUp({
-        email: state.email, 
-        password: state.password,
-        validationData: [{
-          Name: 'recaptchaToken',
-          Value: recaptchaToken,
-        }],
-      })
-      .then(() => {
-        LoginCognitoUser({'Username':state.email, 'Password':state.password})
-        .then(tokenSet => {
-          localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
-          setState(prevState => ({
-            ...prevState,
-            'successMessage' : "Authentication successful."
-          }))
-          redirectToHome();
+      auth.onSignup(signupDetails, (err) => {
+        if(!err) {
+          auth.onLogin(signupDetails, (err) => {
+            if(!err) {
+              // confirm user via email. Needs to happen after registration+authentication. I left this
+              //   here for when in the future I decide to move it probably to AuthProvider
+              // confirmUser(result.user);
 
-          // confirmUser(result.user); // confirm user via email. Needs to happen after registration+authentication
-        })
-        .catch(err => {
-          setAlertContent(err.message || JSON.stringify(err));
-          setAlert(true);
-
-          setButtonLoading(false);
-          setDisableButton(false);
-        });
-      })
-      .catch(err => {
-        if (err.name === 'UserLambdaValidationException') {
+              navigate('/dashboard', { replace: true });
+            } else {
+              setAlertContent(err.message || JSON.stringify(err));
+              setAlert(true);
+        
+              setButtonLoading(false);
+              setDisableButton(false);
+            }
+          });
+        } else if (err.name === 'UserLambdaValidationException') {
           setAlertContent(err.message.replace("PreSignUp failed with error ","") || JSON.stringify(err))
           setAlert(true);
 
@@ -151,7 +123,7 @@ function RegistrationForm(props) {
 
   return(
     <Box
-      component="form"
+      component='form'
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -159,32 +131,32 @@ function RegistrationForm(props) {
         '& > :not(style)': { m: 1, width: '35ch' },
       }}
       noValidate
-      autoComplete="off"
+      autoComplete='off'
     >
       <TextField
-        id="email"
+        id='email'
         label="E-mail"
-        variant="standard"
+        variant='standard'
         required
-        type="email"
+        type='email'
         value={state.email}
         onChange={handleChange}
       />
       <TextField
-          id="password"
+          id='password'
           label="Password"
-          variant="standard"
+          variant='standard'
           required
-          type="password"
+          type='password'
           value={state.password}
           onChange={handleChange}
       />
       <TextField
-          id="confirmPassword"
+          id='confirmPassword'
           label="Confirm Password"
-          variant="standard"
+          variant='standard'
           required
-          type="password"
+          type='password'
           value={state.confirmPassword}
           onChange={handleChange}
       />
@@ -202,21 +174,21 @@ function RegistrationForm(props) {
         variant='outlined'
         type='submit'
       >
-        Register
+        Signup
       </LoadingButton>
       <Collapse in={alert}>
         <Alert
-          severity="error"
+          severity='error'
           action={
             <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
+              aria-label='close'
+              color='inherit'
+              size='small'
               onClick={() => {
                 setAlert(false);
               }}
             >
-              <CloseIcon fontSize="inherit" />
+              <CloseIcon fontSize='inherit' />
             </IconButton>
           }
           sx={{ mb: 2 }}
@@ -238,7 +210,7 @@ function RegistrationForm(props) {
           sx={{
             ml: '10px',
           }}
-          onClick={() => redirectToLogin()}
+          onClick={() => navigate('/login')}
         >
           Login here
         </Link>
@@ -246,4 +218,4 @@ function RegistrationForm(props) {
     </Box>
   )
 }
-export default withRouter(RegistrationForm);
+export default RegistrationForm;

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
-import LoginCognitoUser from '../../utils/LoginCognitoUser'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
@@ -11,7 +10,19 @@ import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
 
-function LoginForm(props) {
+import { AuthContext } from '../../utils/AuthProvider';
+
+function useAuth() {
+  return React.useContext(AuthContext);
+}
+
+function LoginForm() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const auth = useAuth();
+
+  const from = location.state?.from?.pathname || '/';
+
   const [state , setState] = useState({
     email : '',
     password : '',
@@ -34,49 +45,33 @@ function LoginForm(props) {
   const [alert, setAlert] = useState(false);
   const [alertContent, setAlertContent] = useState('');
 
-  const awsCognitoLogin = (p) => {
-    const loginDetails={
-      'Username' : p.email,
-      'Password' : p.password,
-    }
-
-    LoginCognitoUser(loginDetails)
-      .then(tokenSet => {
-        localStorage.setItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN, tokenSet.getIdToken().getJwtToken());
-        setState(prevState => ({
-          ...prevState,
-          'successMessage' : "Authentication successful."
-        }))
-        redirectToHome();
-      })
-      .catch(err => {
-        setAlertContent(err.message || JSON.stringify(err));
-        setAlert(true);
-
-        setButtonLoading(false);
-        setDisableButton(false);
-      });
-  }
-
-  const redirectToHome = () => {
-    props.updateTitle('Home');
-    props.history.push('/');
-  }
-
-  const redirectToRegister = () => {
-    props.updateTitle('Register');
-    props.history.push('/register'); 
-  }
-
-  const onClick = (e) => {
-    e.preventDefault();
+  const onClick = (event) => {
+    event.preventDefault();
 
     setButtonLoading(true);
     setDisableButton(true);
 
-    awsCognitoLogin({
-      email: state.email, 
-      password: state.password,
+    const loginDetails = {
+      email : state.email,
+      password : state.password,
+    }
+
+    auth.onLogin(loginDetails, (err) => {
+      if(!err) {
+        // Send them back to the page they tried to visit when they were
+        // redirected to the login page. Use { replace: true } so we don't create
+        // another entry in the history stack for the login page.  This means that
+        // when they get to the protected page and click the back button, they
+        // won't end up back on the login page, which is also really nice for the
+        // user experience.
+        navigate(from, { replace: true });
+      } else {
+        setAlertContent(err.message || JSON.stringify(err));
+        setAlert(true);
+  
+        setButtonLoading(false);
+        setDisableButton(false);
+      }
     });
   }
   return(
@@ -153,12 +148,12 @@ function LoginForm(props) {
           sx={{
             ml: '10px',
           }}
-          onClick={() => redirectToRegister()}
+          onClick={() => navigate('/signup')}
         >
-          Register here
+          Signup here
         </Link>
       </Box>
     </Box>
   )
 }
-export default withRouter(LoginForm);
+export default LoginForm;

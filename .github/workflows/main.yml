@@ -1,12 +1,15 @@
 name: CI
-on: [push]
+on:
+  pull_request:
+    branches:    
+      - main
 
 env:
   AWS_REGION: "us-east-1"
 
 permissions:
-      id-token: write
-      contents: read    # Required for actions/checkout@v2
+  id-token: write
+  contents: read    # Required for actions/checkout@v2
 
 jobs:
   build-infra:
@@ -24,7 +27,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::117865246796:role/td000-dev-salmoncow-role
+          role-to-assume: arn:aws:iam::117865246796:role/td000-dev-salmoncow-deployer-role
           role-session-name: salmoncowDeployer
           aws-region: ${{ env.AWS_REGION }}
 
@@ -61,7 +64,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::117865246796:role/td000-dev-salmoncow-role
+          role-to-assume: arn:aws:iam::117865246796:role/td000-dev-salmoncow-deployer-role
           role-session-name: salmoncowDeployer
           aws-region: ${{ env.AWS_REGION }}
 

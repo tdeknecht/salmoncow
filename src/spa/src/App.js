@@ -1,12 +1,17 @@
 // Used some of this guide: https://medium.com/technoetics/create-basic-login-forms-using-react-js-hooks-and-bootstrap-2ae36c15e551
 // AWS Cognito guide: https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
 
-import React, {useState} from 'react';
+import React from 'react';
 import {
-  BrowserRouter as Router,
-  Switch,
-  Route
+  Routes,
+  Route,
+  Link,
+  useLocation,
+  Navigate,
+  Outlet,
 } from 'react-router-dom';
+
+import Grid from '@mui/material/Grid';
 
 import './App.css';
 import logo from './images/salmoncow.png';
@@ -14,17 +19,45 @@ import logo from './images/salmoncow.png';
 import Home from './components/Home/Home';
 import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
-import RegistrationForm from './components/RegistrationForm/RegistrationForm';
-import PrivateRoute from './utils/PrivateRoute';
-
-import Grid from '@mui/material/Grid';
+import SignupForm from './components/SignupForm/SignupForm';
+import { Dashboard } from './components/Dashboard/Dashboard';
+import { AuthContext, AuthProvider } from './utils/AuthProvider';
 
 export default function App() {
-  const [title, updateTitle] = useState(null);
-
   return (
-    <Router>
-      <Header title={title} updateTitle={updateTitle} />
+    <AuthProvider>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path='/home' element={<Home />} />
+          <Route path='/signup' element={<SignupForm />} />
+          <Route path='/login' element={<LoginForm />} />
+          <Route
+            path='/dashboard'
+            element={
+              <RequireAuth>
+                <Dashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='*'
+            element={
+              <main style={{ padding: '1rem' }}>
+                <p>404 Page not found.</p>
+              </main>
+            }
+          />
+        </Route>
+      </Routes>
+    </AuthProvider>
+  );
+}
+
+function Layout() {
+  return (
+    <div>
+      <Header />
       <Grid
         container
         spacing={0}
@@ -32,49 +65,33 @@ export default function App() {
         alignItems='center'
         style={{ minHeight: '100vh' }}
       >
-        <img src={logo} className='logo' alt='logo' />
-          <Switch>
-            <Route path='/register'>
-              <RegistrationForm updateTitle={updateTitle} />
-            </Route>
-            <Route path='/login'>
-              <LoginForm updateTitle={updateTitle} />
-            </Route>
-            <PrivateRoute path='/'>
-              <Home />
-            </PrivateRoute>
-          </Switch>
+        <Link to='/'><img src={logo} className='logo' alt='logo' /></Link>
+
+        <Outlet />
+
         <p className='footer'>
           This is a dev site. It's simply a fun <a href='https://github.com/tdeknecht/salmoncow' target='_blank' rel='noopener noreferrer'>side project</a>.
         </p>
       </Grid>
-    </Router>
+    </div>
   );
 }
 
-// function App() {
-//   return (
-//     <div>
-//       <img src={logo} className='App-logo' alt='logo' />
-//       <Welcome name='Tyler D' />
-//     </div>
-//   );
-// }
-// export default App;
+function useAuth() {
+  return React.useContext(AuthContext);
+}
 
-// (A) function approach to Welcome
-// function Welcome(props) {
-//   return <h1>Hello, {props.name}</h1>;
-// }
+function RequireAuth({ children }) {
+  const auth = useAuth();
+  const location = useLocation();
 
-// (B) alternative syntax to above. Useful for defining functions within a function...?
-// const Welcome = (props) => {
-//   return <h1>Hello, {props.name}</h1>;
-// }
+  if (!auth.token) {
+    // Redirect them to the /login page, but save the current location they were
+    // trying to go to when they were redirected. This allows us to send them
+    // along to that page after they login, which is a nicer user experience
+    // than dropping them off on the home page.
+    return <Navigate to='/login' state={{ from: location }} replace />;
+  }
 
-// (C) class approach to Welcome
-// class Welcome extends React.Component {
-//   render() {
-//     return <h1>Hello, {this.props.name}</h1>;
-//   }
-// }
+  return children;
+}

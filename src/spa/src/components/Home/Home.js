@@ -1,39 +1,38 @@
-import React,{ useEffect } from 'react';
-import { withRouter } from 'react-router-dom';
-// import jwt_decode from 'jwt-decode';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-function Home(props) {
-	useEffect(() => {
-    // https://github.com/auth0/jwt-decode or my personal javascript repo for snippets
-    // Using Cognito tokens: https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-with-identity-providers.html
+import Grid from '@mui/material/Grid';
 
-    // const decoded = jwt_decode(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
-    // console.log(decoded)
-    // console.log( new Date(decoded.exp * 1000) );
+import { AuthContext } from '../../utils/AuthProvider';
 
-    // TODO: Check refresh token expiration. If expired, redirect to login.
-
-    // Example:
-      // axios.get(API_BASE_URL+'/user/me', { headers: { 'token': localStorage.getItem(ACCESS_TOKEN_NAME) }})
-      // .then(function (response) {
-      // 	if(response.status !== 200){
-      // 		redirectToLogin()
-      // 	}
-      // })
-      // .catch(function (error) {
-      // 	redirectToLogin()
-      // });
-	})
-
-	// function redirectToLogin() {
-	// 	props.history.push('/login');
-	// }
-
+function Home() {
 	return(
-		<div>
-			You smell like poop.
-		</div>
+		<Grid
+			container
+			spacing={0}
+			direction='column'
+			alignItems='center'
+			style={{ minHeight: '100vh' }}
+		>
+      Welcome!
+
+			<AuthStatus />
+		</Grid>
 	)
 }
 
-export default withRouter(Home);
+function useAuth() {
+	return React.useContext(AuthContext);
+  }
+  
+  function AuthStatus() {
+	let auth = useAuth();
+  
+	if (!auth.token) {
+	  return(
+		<p>You are not logged in. <Link to="/login">Login here.</Link></p>
+	  )
+	}
+  }
+
+export default Home;
