@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha';
 
 import Alert from '@mui/material/Alert';
@@ -18,11 +18,8 @@ function useAuth() {
 }
 
 function RegistrationForm() {
-  const location = useLocation();
   const navigate = useNavigate();
   const auth = useAuth();
-
-  const from = location.state?.from?.pathname || '/';
 
   const [state, setState] = useState({
     email : '',
