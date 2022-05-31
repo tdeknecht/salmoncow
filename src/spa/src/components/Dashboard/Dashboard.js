@@ -15,7 +15,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <h2>Dashboard (Protected)</h2>
+      <h2>Dashboard</h2>
 
       <div>Authenticated as {decodedToken.email}</div>
       <div>Token type: {decodedToken.token_use}</div>
