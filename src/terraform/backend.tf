@@ -9,11 +9,11 @@ terraform {
       version = "~> 4.30"
     }
   }
-  
+
   backend "s3" {
-    bucket  = "salmoncow"
+    bucket  = "salmoncow-data"
     key     = "terraform-state/salmoncow.tfstate"
     region  = "us-east-1"
-    profile = "default"
+    profile = "td001"
   }
 }

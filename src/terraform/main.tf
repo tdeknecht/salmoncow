@@ -24,13 +24,13 @@ locals {
 # ------------------------------------------------------------------------------
 
 # salmoncow.com
-# module "route53_zone_salmoncow_com" {
-#   source = "git::https://github.com/tdeknecht/terraform-aws//modules/network/route53_zone/"
+module "route53_zone_salmoncow_com" {
+  source = "git::https://github.com/tdeknecht/terraform-aws//modules/network/route53_zone/"
 
-#   name    = "salmoncow.com"
-#   comment = "salmoncow public zone"
-#   tags    = local.tags
-# }
+  name    = "salmoncow.com"
+  comment = "salmoncow public zone"
+  tags    = local.tags
+}
 
 # resource "aws_route53_record" "salmoncow_com" {
 #   zone_id = module.route53_zone_salmoncow_com.zone_id
@@ -71,7 +71,6 @@ locals {
 #   subject_alternative_names = ["www.salmoncow.com"]
 #   tags                      = local.tags
 # }
-# output "certificate_arn_salmoncow_com" { value = module.acm_cert_salmoncow_com.certificate_arn }
 
 # ------------------------------------------------------------------------------
 # CloudFront
@@ -87,7 +86,7 @@ locals {
 #   tags                = local.tags
 
 #   origin {
-#     domain_name = module.s3_bucket_salmoncow_com.bucket_domain_name
+#     domain_name = module.s3_bucket_salmoncow_app.bucket_domain_name
 #     origin_id   = local.s3_origin_id
 
 #     s3_origin_config {
@@ -135,76 +134,83 @@ locals {
 #   }
 # }
 
-# resource "aws_cloudfront_origin_access_identity" "salmoncow_com_oai" {
-#   comment = "salmoncow.com origin access identity"
-# }
+resource "aws_cloudfront_origin_access_identity" "salmoncow_com_oai" {
+  comment = "salmoncow.com origin access identity"
+}
 
 # ------------------------------------------------------------------------------
 # S3: Buckets
 # ------------------------------------------------------------------------------
 
-# salmoncow.com (website host)
-# module "s3_bucket_salmoncow_com" {
-#   source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
+# salmoncow.com application
+module "s3_bucket_salmoncow_app" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "3.4.0"
 
-#   ou                  = var.ou
-#   use_case            = var.use_case
-#   bucket              = "salmoncow.com"
-#   versioning          = true
-#   base_lifecycle_rule = true
-#   policy              = data.aws_iam_policy_document.s3_bucket_policy_salmoncow_com.json
-#   tags                = local.tags
+  bucket        = "salmoncow-app"
+  attach_policy = true
+  policy        = data.aws_iam_policy_document.s3_bucket_policy_salmoncow_app.json
+  versioning = {
+    enabled = true
+  }
 
-#   # website config
-#   index_document = "index.html"
-#   error_document = "error.html"
-# }
+  lifecycle_rule = [
+    {
+      id                                     = "base"
+      enabled                                = true
+      abort_incomplete_multipart_upload_days = 7
 
-# output "s3_salmoncow_com_id" { value = module.s3_bucket_salmoncow_com.id }
-# output "s3_salmoncow_com_arn" { value = module.s3_bucket_salmoncow_com.arn }
-# output "s3_salmoncow_com_bucket_domain_name" { value = module.s3_bucket_salmoncow_com.bucket_domain_name }
+      expiration = {
+        expired_object_delete_marker = true
+      }
 
-# data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_com" {
-#   statement {
-#     sid       = "OaiGetObject"
-#     actions   = ["s3:GetObject"]
-#     resources = ["arn:aws:s3:::salmoncow.com/*"]
-#     effect    = "Allow"
-#     principals {
-#       type        = "AWS"
-#       identifiers = [aws_cloudfront_origin_access_identity.salmoncow_com_oai.iam_arn]
-#     }
-#   }
-# }
+      noncurrent_version_expiration = {
+        days = 30
+      }
+    },
+    {
+      id      = "cloudtrail"
+      enabled = true
+      prefix  = "cloudtrail/"
 
-# # www.salmoncow.com (website redirect)
-# module "s3_bucket_www_salmoncow_com" {
-#   source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
+      expiration = {
+        days = 180
+      }
 
-#   ou                  = var.ou
-#   use_case            = var.use_case
-#   bucket              = "www.salmoncow.com"
-#   versioning          = false
-#   base_lifecycle_rule = false
-#   tags                = local.tags
+      noncurrent_version_expiration = {
+        days = 7
+      }
+    }
+  ]
 
-#   # website config
-#   redirect_all_requests_to = "https://salmoncow.com"
-# }
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 
-# salmoncow (data)
-# module "s3_bucket_salmoncow" {
-#   source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
+  tags = merge(
+    {
+      "Name" = "${var.use_case}-${var.ou}-${var.region}"
+    },
+    local.tags
+  )
+}
 
-#   ou                  = var.ou
-#   use_case            = var.use_case
-#   bucket              = "salmoncow"
-#   versioning          = true
-#   base_lifecycle_rule = true
-#   policy              = data.aws_iam_policy_document.s3_bucket_policy_salmoncow.json
-#   tags                = local.tags
-# }
 
+data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_app" {
+  statement {
+    sid       = "oaiGetObject"
+    actions   = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::salmoncow-app/*"]
+    effect    = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.salmoncow_com_oai.iam_arn]
+    }
+  }
+}
+
+# salmoncow.com data
 module "s3_bucket_salmoncow_data" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.4.0"
@@ -274,19 +280,19 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow" {
 # User Federation
 # ------------------------------------------------------------------------------
 
-# module "federation" {
-#   source = "./federation"
+module "federation" {
+  source = "./federation"
 
-#   ou        = var.ou
-#   use_case  = var.use_case
-#   tenant    = var.tenant
-#   recaptcha = { # https://www.google.com/recaptcha/admin
-#     secret_key = var.recaptcha_secret_key,
-#   }
+  ou        = var.ou
+  use_case  = var.use_case
+  tenant    = var.tenant
+  recaptcha = { # https://www.google.com/recaptcha/admin
+    secret_key = var.recaptcha_secret_key,
+  }
 
-#   tags = local.tags
-# }
+  tags = local.tags
+}
 
-# output "cognito_user_pool_id" { value = module.federation.user_pool_id }
-# output "cognito_client_id" { value = module.federation.client_id }
-# output "cognito_identity_pool_id" { value = module.federation.identity_pool_id }
+output "cognito_user_pool_id" { value = module.federation.user_pool_id }
+output "cognito_client_id" { value = module.federation.client_id }
+output "cognito_identity_pool_id" { value = module.federation.identity_pool_id }
