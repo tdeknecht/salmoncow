@@ -71,7 +71,6 @@ module "acm_cert_salmoncow_com" {
   subject_alternative_names = ["www.salmoncow.com"]
   tags                      = local.tags
 }
-output "certificate_arn_salmoncow_com" { value = module.acm_cert_salmoncow_com.certificate_arn }
 
 # ------------------------------------------------------------------------------
 # CloudFront
@@ -87,7 +86,7 @@ resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
   tags                = local.tags
 
   origin {
-    domain_name = module.s3_bucket_salmoncow_com.bucket_domain_name
+    domain_name = module.s3_bucket_salmoncow_app.s3_bucket_bucket_domain_name
     origin_id   = local.s3_origin_id
 
     s3_origin_config {
@@ -140,49 +139,69 @@ resource "aws_cloudfront_origin_access_identity" "salmoncow_com_oai" {
 }
 
 # ------------------------------------------------------------------------------
-# API Gateway
-# ------------------------------------------------------------------------------
-
-# salmoncow
-# module "salmoncow_api_lambda" {
-#   source = "git::https://github.com/tdeknecht/terraform-aws//modules/hello_world/rest_api_lambda/"
-#   # source = "../../../terraform/modules/hello_world/rest_api_lambda"
-
-#   ou   = local.ou
-#   name = "salmoncow"
-#   tags = local.tags
-# }
-
-# ------------------------------------------------------------------------------
 # S3: Buckets
 # ------------------------------------------------------------------------------
 
-# salmoncow.com (website host)
-module "s3_bucket_salmoncow_com" {
-  source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
+# salmoncow.com application
+module "s3_bucket_salmoncow_app" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "3.4.0"
 
-  ou                  = var.ou
-  use_case            = var.use_case
-  bucket              = "salmoncow.com"
-  versioning          = true
-  base_lifecycle_rule = true
-  policy              = data.aws_iam_policy_document.s3_bucket_policy_salmoncow_com.json
-  tags                = local.tags
+  bucket        = "salmoncow-app"
+  attach_policy = true
+  policy        = data.aws_iam_policy_document.s3_bucket_policy_salmoncow_app.json
+  versioning = {
+    enabled = true
+  }
 
-  # website config
-  index_document = "index.html"
-  error_document = "error.html"
+  lifecycle_rule = [
+    {
+      id                                     = "base"
+      enabled                                = true
+      abort_incomplete_multipart_upload_days = 7
+
+      expiration = {
+        expired_object_delete_marker = true
+      }
+
+      noncurrent_version_expiration = {
+        days = 30
+      }
+    },
+    {
+      id      = "cloudtrail"
+      enabled = true
+      prefix  = "cloudtrail/"
+
+      expiration = {
+        days = 180
+      }
+
+      noncurrent_version_expiration = {
+        days = 7
+      }
+    }
+  ]
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  tags = merge(
+    {
+      "Name" = "${var.use_case}-${var.ou}-${var.region}"
+    },
+    local.tags
+  )
 }
 
-output "s3_salmoncow_com_id" { value = module.s3_bucket_salmoncow_com.id }
-output "s3_salmoncow_com_arn" { value = module.s3_bucket_salmoncow_com.arn }
-output "s3_salmoncow_com_bucket_domain_name" { value = module.s3_bucket_salmoncow_com.bucket_domain_name }
 
-data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_com" {
+data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_app" {
   statement {
-    sid       = "OaiGetObject"
+    sid       = "oaiGetObject"
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::salmoncow.com/*"]
+    resources = ["arn:aws:s3:::salmoncow-app/*"]
     effect    = "Allow"
     principals {
       type        = "AWS"
@@ -191,39 +210,65 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_com" {
   }
 }
 
-# www.salmoncow.com (website redirect)
-module "s3_bucket_www_salmoncow_com" {
-  source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
+# salmoncow.com data
+module "s3_bucket_salmoncow_data" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "3.4.0"
 
-  ou                  = var.ou
-  use_case            = var.use_case
-  bucket              = "www.salmoncow.com"
-  versioning          = false
-  base_lifecycle_rule = false
-  tags                = local.tags
+  bucket        = "salmoncow-data"
+  attach_policy = true
+  policy        = data.aws_iam_policy_document.s3_bucket_policy_salmoncow.json
+  versioning = {
+    enabled = true
+  }
 
-  # website config
-  redirect_all_requests_to = "https://salmoncow.com"
-}
+  lifecycle_rule = [
+    {
+      id                                     = "base"
+      enabled                                = true
+      abort_incomplete_multipart_upload_days = 7
 
-# salmoncow (data)
-module "s3_bucket_salmoncow" {
-  source = "git::https://github.com/tdeknecht/terraform-aws//modules/storage/s3_bucket/"
+      expiration = {
+        expired_object_delete_marker = true
+      }
 
-  ou                  = var.ou
-  use_case            = var.use_case
-  bucket              = "salmoncow"
-  versioning          = true
-  base_lifecycle_rule = true
-  policy              = data.aws_iam_policy_document.s3_bucket_policy_salmoncow.json
-  tags                = local.tags
+      noncurrent_version_expiration = {
+        days = 30
+      }
+    },
+    {
+      id      = "cloudtrail"
+      enabled = true
+      prefix  = "cloudtrail/"
+
+      expiration = {
+        days = 180
+      }
+
+      noncurrent_version_expiration = {
+        days = 7
+      }
+    }
+  ]
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  tags = merge(
+    {
+      "Name" = "${var.use_case}-${var.ou}-${var.region}"
+    },
+    local.tags
+  )
 }
 
 data "aws_iam_policy_document" "s3_bucket_policy_salmoncow" {
   statement {
-    sid       = "salmoncow"
+    sid       = "salmoncowApp"
     actions   = ["s3:*"]
-    resources = ["arn:aws:s3:::salmoncow/*"]
+    resources = ["arn:aws:s3:::salmoncow-data/*"]
     principals {
       type        = "AWS"
       identifiers = [data.aws_caller_identity.current.account_id]

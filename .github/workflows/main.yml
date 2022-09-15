@@ -5,7 +5,7 @@ on:
       - main
 
 env:
-  AWS_REGION: "us-east-1"
+  AWS_REGION: us-east-1
 
 permissions:
   id-token: write
@@ -18,7 +18,6 @@ jobs:
       image: tdeknecht/aws:latest
       env:
         TF_VAR_RECAPTCHA_SECRET_KEY: ${{ secrets.TF_VAR_RECAPTCHA_SECRET_KEY }}
-        TF_VAR_RECAPTCHA_SITE_KEY: ${{ secrets.TF_VAR_RECAPTCHA_SITE_KEY }}
 
     steps:
       - name: Git clone the repository
@@ -27,7 +26,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::117865246796:role/td000-dev-salmoncow-deployer-role
+          role-to-assume: arn:aws:iam::678856875282:role/td001-dev-salmoncow-deployer-role
           role-session-name: salmoncowDeployer
           aws-region: ${{ env.AWS_REGION }}
 
@@ -64,7 +63,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::117865246796:role/td000-dev-salmoncow-deployer-role
+          role-to-assume: arn:aws:iam::678856875282:role/td001-dev-salmoncow-deployer-role
           role-session-name: salmoncowDeployer
           aws-region: ${{ env.AWS_REGION }}
 
