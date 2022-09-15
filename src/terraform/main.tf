@@ -217,7 +217,7 @@ module "s3_bucket_salmoncow_data" {
 
   bucket        = "salmoncow-data"
   attach_policy = true
-  policy        = data.aws_iam_policy_document.s3_bucket_policy_salmoncow.json
+  policy        = data.aws_iam_policy_document.s3_bucket_policy_salmoncow_data.json
   versioning = {
     enabled = true
   }
@@ -264,9 +264,9 @@ module "s3_bucket_salmoncow_data" {
   )
 }
 
-data "aws_iam_policy_document" "s3_bucket_policy_salmoncow" {
+data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_data" {
   statement {
-    sid       = "salmoncowApp"
+    sid       = "salmoncowData"
     actions   = ["s3:*"]
     resources = ["arn:aws:s3:::salmoncow-data/*"]
     principals {
