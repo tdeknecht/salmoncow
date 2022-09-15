@@ -85,4 +85,4 @@ jobs:
       - name: Copy files
         run: |
           cd src/spa/build
-          aws s3 sync . s3://salmoncow.com --delete
+          aws s3 sync . s3://salmoncow-app --delete
