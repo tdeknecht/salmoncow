@@ -1,8 +1,8 @@
 name: CI
 on:
   push:
-    branches:    
-      - main
+    # branches:    
+    #   - main
 
 env:
   AWS_REGION: us-east-1
@@ -29,6 +29,9 @@ jobs:
           role-to-assume: arn:aws:iam::678856875282:role/td001-dev-salmoncow-deployer-role
           role-session-name: salmoncowDeployer
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Test AWS creds
+        run: aws sts get-caller-identity
 
       - name: Set up tfvars
         working-directory: ./src/terraform
