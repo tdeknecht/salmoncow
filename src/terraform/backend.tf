@@ -14,6 +14,6 @@ terraform {
     bucket  = "salmoncow-data"
     key     = "terraform-state/salmoncow.tfstate"
     region  = "us-east-1"
-    profile = "td001"
+    profile = "default"
   }
 }
