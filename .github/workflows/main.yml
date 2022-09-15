@@ -30,9 +30,6 @@ jobs:
           role-session-name: salmoncowDeployer
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Test AWS creds
-        run: aws sts get-caller-identity
-
       - name: Set up tfvars
         working-directory: ./src/terraform
         id: vars
