@@ -4,5 +4,5 @@
 
 provider "aws" {
   region  = var.region
-  profile = "td001"
+  profile = "default"
 }

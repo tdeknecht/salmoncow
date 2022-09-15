@@ -32,107 +32,107 @@ module "route53_zone_salmoncow_com" {
   tags    = local.tags
 }
 
-# resource "aws_route53_record" "salmoncow_com" {
-#   zone_id = module.route53_zone_salmoncow_com.zone_id
-#   name    = "salmoncow.com"
-#   type    = "A"
+resource "aws_route53_record" "salmoncow_com" {
+  zone_id = module.route53_zone_salmoncow_com.zone_id
+  name    = "salmoncow.com"
+  type    = "A"
 
-#   alias {
-#     name                   = aws_cloudfront_distribution.salmoncow_s3_distribution.domain_name
-#     zone_id                = aws_cloudfront_distribution.salmoncow_s3_distribution.hosted_zone_id
-#     evaluate_target_health = false
-#   }
-# }
+  alias {
+    name                   = aws_cloudfront_distribution.salmoncow_s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.salmoncow_s3_distribution.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
 
-# resource "aws_route53_record" "www_salmoncow_com" {
-#   zone_id = module.route53_zone_salmoncow_com.zone_id
-#   name    = "www.salmoncow.com"
-#   type    = "A"
+resource "aws_route53_record" "www_salmoncow_com" {
+  zone_id = module.route53_zone_salmoncow_com.zone_id
+  name    = "www.salmoncow.com"
+  type    = "A"
 
-#   alias {
-#     name                   = aws_cloudfront_distribution.salmoncow_s3_distribution.domain_name
-#     zone_id                = aws_cloudfront_distribution.salmoncow_s3_distribution.hosted_zone_id
-#     evaluate_target_health = false
-#   }
-# }
+  alias {
+    name                   = aws_cloudfront_distribution.salmoncow_s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.salmoncow_s3_distribution.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
 
 # ------------------------------------------------------------------------------
 # ACM
 # ------------------------------------------------------------------------------
 
 # salmoncow.com certificate
-# module "acm_cert_salmoncow_com" {
-#   source = "git::https://github.com/tdeknecht/terraform-aws//modules/network/acm_certificate/"
+module "acm_cert_salmoncow_com" {
+  source = "git::https://github.com/tdeknecht/terraform-aws//modules/network/acm_certificate/"
 
-#   ou                        = var.ou
-#   certificate_domain_name   = "salmoncow.com"
-#   validation_domain_name    = "salmoncow.com"
-#   validation_method         = "DNS"
-#   subject_alternative_names = ["www.salmoncow.com"]
-#   tags                      = local.tags
-# }
+  ou                        = var.ou
+  certificate_domain_name   = "salmoncow.com"
+  validation_domain_name    = "salmoncow.com"
+  validation_method         = "DNS"
+  subject_alternative_names = ["www.salmoncow.com"]
+  tags                      = local.tags
+}
 
 # ------------------------------------------------------------------------------
 # CloudFront
 # ------------------------------------------------------------------------------
 
-# resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
-#   aliases             = ["www.salmoncow.com", "salmoncow.com"]
-#   enabled             = true
-#   is_ipv6_enabled     = true
-#   comment             = "salmoncow distribution"
-#   default_root_object = "index.html"
-#   price_class         = "PriceClass_100"
-#   tags                = local.tags
+resource "aws_cloudfront_distribution" "salmoncow_s3_distribution" {
+  aliases             = ["www.salmoncow.com", "salmoncow.com"]
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "salmoncow distribution"
+  default_root_object = "index.html"
+  price_class         = "PriceClass_100"
+  tags                = local.tags
 
-#   origin {
-#     domain_name = module.s3_bucket_salmoncow_app.bucket_domain_name
-#     origin_id   = local.s3_origin_id
+  origin {
+    domain_name = module.s3_bucket_salmoncow_app.s3_bucket_bucket_domain_name
+    origin_id   = local.s3_origin_id
 
-#     s3_origin_config {
-#       origin_access_identity = aws_cloudfront_origin_access_identity.salmoncow_com_oai.cloudfront_access_identity_path
-#     }
-#   }
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.salmoncow_com_oai.cloudfront_access_identity_path
+    }
+  }
 
-#   viewer_certificate {
-#     acm_certificate_arn      = module.acm_cert_salmoncow_com.certificate_arn
-#     minimum_protocol_version = "TLSv1.2_2018"
-#     ssl_support_method       = "sni-only"
-#   }
+  viewer_certificate {
+    acm_certificate_arn      = module.acm_cert_salmoncow_com.certificate_arn
+    minimum_protocol_version = "TLSv1.2_2018"
+    ssl_support_method       = "sni-only"
+  }
 
-#   default_cache_behavior {
-#     allowed_methods        = ["GET", "HEAD"]
-#     cached_methods         = ["GET", "HEAD"]
-#     target_origin_id       = local.s3_origin_id
-#     viewer_protocol_policy = "redirect-to-https"
-#     min_ttl                = 0
-#     default_ttl            = 3600
-#     max_ttl                = 86400
+  default_cache_behavior {
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = local.s3_origin_id
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
 
-#     forwarded_values {
-#       query_string = false
+    forwarded_values {
+      query_string = false
 
-#       cookies {
-#         forward = "none"
-#       }
-#     }
-#   }
+      cookies {
+        forward = "none"
+      }
+    }
+  }
 
-#   # required for React SPA because /paths don't exist as objects in S3, thus a custom error
-#   # response is required to redirect a 403 to /index.html as a 200
-#   custom_error_response {
-#     error_caching_min_ttl = 10
-#     error_code            = 403
-#     response_code         = 200
-#     response_page_path    = "/index.html"
-#   }
+  # required for React SPA because /paths don't exist as objects in S3, thus a custom error
+  # response is required to redirect a 403 to /index.html as a 200
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/index.html"
+  }
 
-#   restrictions {
-#     geo_restriction {
-#       restriction_type = "none"
-#     }
-#   }
-# }
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+}
 
 resource "aws_cloudfront_origin_access_identity" "salmoncow_com_oai" {
   comment = "salmoncow.com origin access identity"
