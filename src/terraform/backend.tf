@@ -11,7 +11,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "salmoncow-data"
+    bucket  = "salmoncow-tenant"
     key     = "terraform-state/salmoncow.tfstate"
     region  = "us-east-1"
     profile = "default"
