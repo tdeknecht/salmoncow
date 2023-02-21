@@ -15,21 +15,43 @@ export default function Home() {
 		>
       Welcome!
 
-			<AuthStatus />
+			<SessionStatus />
 		</Grid>
 	)
 }
+  
+function SessionStatus() {
+  const { getSession } = React.useContext(AuthContext);
 
-function useAuth() {
-	return React.useContext(AuthContext);
-}
-  
-function AuthStatus() {
-	let auth = useAuth();
-  
-	if (!auth.idToken) {
-	  return(
-      <p>You are not logged in. <Link to="/login">Login here.</Link></p>
-      )
+  const [session, setSession] = React.useState(false);
+
+  getSession(session => {
+    if(session) {
+      console.log(session)
+      setSession(true)
+    } else {
+      setSession(false)
     }
+  });
+
+  if (!session) {
+    return(
+      <p>You are not logged in. <Link to="/login">Login here.</Link></p>
+    )
   }
+
+  // getSession()
+  //   .then(session => {
+  //     console.log('Session: ', session.isValid());
+  //     setSession(true)
+  //   })
+  //   .catch(err => {
+  //     console.log('Session err: ', err);
+  //   });
+
+  //   if (!session) {
+  //     return(
+  //       <p>You are not logged in. <Link to="/login">Login here.</Link></p>
+  //     )
+  //   }
+}

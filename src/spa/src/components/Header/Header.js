@@ -12,14 +12,12 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 
 import { AuthContext } from '../../utils/AuthProvider';
 
-function useAuth() {
-  return React.useContext(AuthContext);
-}
-
 export default function Header() {
+  const { idToken } = React.useContext(AuthContext);
+  const { onLogout } = React.useContext(AuthContext);
+
   const location = useLocation()
   const navigate = useNavigate()
-  const auth = useAuth();
 
   const capitalize = (s) => {
       if (typeof s !== 'string') return ''
@@ -34,11 +32,11 @@ export default function Header() {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   function renderProfileMenuOptions() {
-    if (auth.idToken) {
+    if (idToken) {
       return(
         <div>
           <MenuItem onClick={() => {navigate('/dashboard'); setAnchorEl(null)}}>Dashboard</MenuItem>
-          <MenuItem onClick={() => {auth.onLogout(() => navigate('/')); setAnchorEl(null)}}>Logout</MenuItem>
+          <MenuItem onClick={() => {onLogout(() => navigate('/')); setAnchorEl(null)}}>Logout</MenuItem>
         </div>
       )
     } else {

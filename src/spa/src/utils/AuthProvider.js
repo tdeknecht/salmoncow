@@ -1,31 +1,33 @@
 import React from 'react';
+import { AuthenticationDetails, CognitoUser } from 'amazon-cognito-identity-js';
+import { UserPool } from '../utils/UserPool';
 
 export const AuthContext = React.createContext(null);
 
 export function AuthProvider({ children }) {
 
-  const [idToken, setIdToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
-  const [accessToken, setAccessToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN));
-  const [cognitoUser, setCognitoUser] = React.useState(null);
+  // const [idToken, setIdToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
+  // const [accessToken, setAccessToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN));
 
   const onLogin = (loginDetails, callback) => {
     loginCognitoUser({
       'Username' : loginDetails.email,
       'Password' : loginDetails.password,
     })
-      .then(result => {
-        var tokenSet = result.tokenSet
-        var cognitoUser = result.cognitoUser
+      // .then(tokenSet => {
+      //   // accessToken, idToken, refreshToken
+      //   localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
+      //   setIdToken(tokenSet.getIdToken().getJwtToken())
 
-        setCognitoUser(cognitoUser)
+      //   localStorage.setItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN, tokenSet.getAccessToken().getJwtToken());
+      //   setAccessToken(tokenSet.getAccessToken().getJwtToken())
 
-        // accessToken, idToken, refreshToken
-        localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
-        setIdToken(tokenSet.getIdToken().getJwtToken())
-
-        localStorage.setItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN, tokenSet.getAccessToken().getJwtToken());
-        setAccessToken(tokenSet.getAccessToken().getJwtToken())
-
+      //   callback();
+      // })
+      // .catch(err => {
+      //   callback(err)
+      // });
+      .then(() => {
         callback();
       })
       .catch(err => {
@@ -34,13 +36,14 @@ export function AuthProvider({ children }) {
   };
 
   const onLogout = (callback) => {
-    // add new LogoutCognitoUser logic to truly log them out of Cognito
+    const user = UserPool.getCurrentUser();
+    user.signOut();
 
-    localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
-    localStorage.removeItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN)
-    localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
+    // localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
+    // localStorage.removeItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN)
+    // localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
     
-    setIdToken(null);
+    // setIdToken(null);
 
     callback();
   };
@@ -49,6 +52,21 @@ export function AuthProvider({ children }) {
     signupCognitoUser(signupDetails)
       .then(() => {
         callback();
+      })
+      .catch(err => {
+        callback(err)
+      });
+  };
+
+  const getSession = (callback) => {
+    getCognitoSession()
+      .then(session => {
+        callback(session)
+        // if (session === undefined) {
+        //   callback(false)
+        // } else {
+        //   callback(session)
+        // }
       })
       .catch(err => {
         callback(err)
@@ -71,12 +89,12 @@ export function AuthProvider({ children }) {
   // };
 
   const value = {
-    cognitoUser,
-    idToken,
-    accessToken,
+    // idToken,
+    // accessToken,
     onLogin,
     onLogout,
     onSignup,
+    getSession,
 
     // fakeSigninA, // a very simple version to test with
     // fakeSigninB,
@@ -89,31 +107,18 @@ export function AuthProvider({ children }) {
   );
 }
 
-// TODO: Move both loginCognitoUser and signupCognitoUser to above
-
-// https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-function loginCognitoUser(loginDetails) {
-  const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-
-  const cognitoUserPool = new AmazonCognitoIdentity.CognitoUserPool({
-    UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-    ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-  });
-  
-  const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+function loginCognitoUser(loginDetails) {  
+  const cognitoUser = new CognitoUser({
     Username: loginDetails.Username,
-    Pool: cognitoUserPool,
+    Pool: UserPool,
   });
   
-  const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(loginDetails);
+  const authenticationDetails = new AuthenticationDetails(loginDetails);
   
   return new Promise((resolve, reject) =>
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
-        resolve({
-          'tokenSet': result,
-          'cognitoUser': cognitoUser
-        });
+        resolve(result);
       },
       onFailure: (err) => {
         reject(err);
@@ -122,27 +127,36 @@ function loginCognitoUser(loginDetails) {
   );
 }
 
-// https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
 function signupCognitoUser(signupDetails) {
-  const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-
-  const cognitoUserPool = new AmazonCognitoIdentity.CognitoUserPool({
-      UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-    });
-
   const attributes = [
       // { Name: 'name', Value: p.name }
   ]
 
   return new Promise((resolve, reject) => (
-      cognitoUserPool.signUp(signupDetails.email, signupDetails.password, attributes, signupDetails.validationData, (err, result) => {
-      if (err) {
+      UserPool.signUp(signupDetails.email, signupDetails.password, attributes, signupDetails.validationData, (err, result) => {
+        if (err) {
           reject(err);
-      }
-      resolve(result);
+        }
+        resolve(result);
       })
   ));
+}
+
+function getCognitoSession() {
+  return new Promise((resolve, reject) => {
+    const user = UserPool.getCurrentUser();
+    if (user) {
+      // NOTE: getSession must be called to authenticate user before calling getUserAttributes
+      user.getSession((err, session) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(session);
+      });
+    } else {
+      reject(false);
+    }
+  })
 }
 
 
@@ -163,4 +177,3 @@ function signupCognitoUser(signupDetails) {
 //   new Promise((resolve) => {
 //     setTimeout(() => resolve('abc123'), 250);
 // });
-

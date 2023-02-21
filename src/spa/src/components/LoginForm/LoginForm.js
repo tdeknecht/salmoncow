@@ -12,14 +12,11 @@ import Link from '@mui/material/Link';
 
 import { AuthContext } from '../../utils/AuthProvider';
 
-function useAuth() {
-  return React.useContext(AuthContext);
-}
-
 function LoginForm() {
+  const { onLogin } = React.useContext(AuthContext);
+
   const location = useLocation();
   const navigate = useNavigate();
-  const auth = useAuth();
 
   const from = location.state?.from?.pathname || '/';
 
@@ -56,7 +53,7 @@ function LoginForm() {
       password : state.password,
     }
 
-    auth.onLogin(loginDetails, (err) => {
+    onLogin(loginDetails, (err) => {
       if(!err) {
         // Send them back to the page they tried to visit when they were
         // redirected to the login page. Use { replace: true } so we don't create
