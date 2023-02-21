@@ -34,7 +34,7 @@ export default function Header() {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   function renderProfileMenuOptions() {
-    if (auth.token) {
+    if (auth.idToken) {
       return(
         <div>
           <MenuItem onClick={() => {navigate('/dashboard'); setAnchorEl(null)}}>Dashboard</MenuItem>

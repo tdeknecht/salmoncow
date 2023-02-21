@@ -27,7 +27,7 @@ function useAuth() {
 function AuthStatus() {
 	let auth = useAuth();
   
-	if (!auth.token) {
+	if (!auth.idToken) {
 	  return(
       <p>You are not logged in. <Link to="/login">Login here.</Link></p>
       )

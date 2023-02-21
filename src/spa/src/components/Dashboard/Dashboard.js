@@ -4,11 +4,11 @@ import jwt_decode from 'jwt-decode';
 import { AuthContext } from '../../utils/AuthProvider';
 
 const Dashboard = () => {
-  const { token } = React.useContext(AuthContext);
+  const { idToken } = React.useContext(AuthContext);
 
   // Using Cognito tokens: https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-with-identity-providers.html
   // const decoded = jwt_decode(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
-  const decodedToken = jwt_decode(token);
+  const decodedToken = jwt_decode(idToken);
   const decodedTokenExp = new Date(decodedToken.exp * 1000).toString()
 
   // console.log(decodedToken)

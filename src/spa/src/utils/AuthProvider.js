@@ -4,7 +4,7 @@ export const AuthContext = React.createContext(null);
 
 export function AuthProvider({ children }) {
 
-  const [token, setToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
+  const [idToken, setIdToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
 
   const onLogin = (loginDetails, callback) => {
     loginCognitoUser({
@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
       .then(tokenSet => {
         // accessToken, idToken, refreshToken
         localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
-        setToken(tokenSet.getIdToken().getJwtToken())
+        setIdToken(tokenSet.getIdToken().getJwtToken())
 
         callback();
       })
@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
     localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
     
-    setToken(null);
+    setIdToken(null);
 
     callback();
   };
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
   // const fakeSigninA = (loginDetails, callback) => {
   //   console.log(loginDetails)
   //   return fakeAuthProvider.signin(() => {
-  //     setToken("abc123");
+  //     setIdToken("abc123");
   //     callback();
   //   });
   // };
@@ -55,12 +55,12 @@ export function AuthProvider({ children }) {
   // const fakeSigninB = async () => {
   //   const token = await fakeAuthToken();
 
-  //   setToken(token);
+  //   setIdToken(idToken);
   //   navigate('/dashboard');
   // };
 
   const value = {
-    token,
+    idToken,
     onLogin,
     onLogout,
     onSignup,
