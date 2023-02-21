@@ -5,16 +5,26 @@ export const AuthContext = React.createContext(null);
 export function AuthProvider({ children }) {
 
   const [idToken, setIdToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
+  const [accessToken, setAccessToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN));
+  const [cognitoUser, setCognitoUser] = React.useState(null);
 
   const onLogin = (loginDetails, callback) => {
     loginCognitoUser({
       'Username' : loginDetails.email,
       'Password' : loginDetails.password,
     })
-      .then(tokenSet => {
+      .then(result => {
+        var tokenSet = result.tokenSet
+        var cognitoUser = result.cognitoUser
+
+        setCognitoUser(cognitoUser)
+
         // accessToken, idToken, refreshToken
         localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
         setIdToken(tokenSet.getIdToken().getJwtToken())
+
+        localStorage.setItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN, tokenSet.getAccessToken().getJwtToken());
+        setAccessToken(tokenSet.getAccessToken().getJwtToken())
 
         callback();
       })
@@ -26,8 +36,9 @@ export function AuthProvider({ children }) {
   const onLogout = (callback) => {
     // add new LogoutCognitoUser logic to truly log them out of Cognito
 
-    localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
     localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
+    localStorage.removeItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN)
+    localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
     
     setIdToken(null);
 
@@ -60,7 +71,9 @@ export function AuthProvider({ children }) {
   // };
 
   const value = {
+    cognitoUser,
     idToken,
+    accessToken,
     onLogin,
     onLogout,
     onSignup,
@@ -97,7 +110,10 @@ function loginCognitoUser(loginDetails) {
   return new Promise((resolve, reject) =>
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
-        resolve(result);
+        resolve({
+          'tokenSet': result,
+          'cognitoUser': cognitoUser
+        });
       },
       onFailure: (err) => {
         reject(err);
