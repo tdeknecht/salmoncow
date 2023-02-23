@@ -11,10 +11,12 @@ import Menu from '@mui/material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
 import { AuthContext } from '../../utils/AuthProvider';
+import { UserPool } from '../../utils/UserPool';
 
 export default function Header() {
-  const { idToken } = React.useContext(AuthContext);
   const { onLogout } = React.useContext(AuthContext);
+
+  const user = UserPool.getCurrentUser();
 
   const location = useLocation()
   const navigate = useNavigate()
@@ -32,7 +34,7 @@ export default function Header() {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   function renderProfileMenuOptions() {
-    if (idToken) {
+    if (user) {
       return(
         <div>
           <MenuItem onClick={() => {navigate('/dashboard'); setAnchorEl(null)}}>Dashboard</MenuItem>

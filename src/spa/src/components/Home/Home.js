@@ -1,9 +1,8 @@
 import React from 'react';
+import { UserPool } from '../../utils/UserPool';
 import { Link } from 'react-router-dom';
 
 import Grid from '@mui/material/Grid';
-
-import { AuthContext } from '../../utils/AuthProvider';
 
 export default function Home() {
 	return(
@@ -15,43 +14,17 @@ export default function Home() {
 		>
       Welcome!
 
-			<SessionStatus />
+			<LoginStatus />
 		</Grid>
 	)
 }
   
-function SessionStatus() {
-  const { getSession } = React.useContext(AuthContext);
+function LoginStatus() {
+  const user = UserPool.getCurrentUser();
 
-  const [session, setSession] = React.useState(false);
-
-  getSession(session => {
-    if(session) {
-      console.log(session)
-      setSession(true)
-    } else {
-      setSession(false)
-    }
-  });
-
-  if (!session) {
-    return(
+  if (!user) {
+    return (
       <p>You are not logged in. <Link to="/login">Login here.</Link></p>
     )
   }
-
-  // getSession()
-  //   .then(session => {
-  //     console.log('Session: ', session.isValid());
-  //     setSession(true)
-  //   })
-  //   .catch(err => {
-  //     console.log('Session err: ', err);
-  //   });
-
-  //   if (!session) {
-  //     return(
-  //       <p>You are not logged in. <Link to="/login">Login here.</Link></p>
-  //     )
-  //   }
 }

@@ -5,28 +5,11 @@ import { UserPool } from '../utils/UserPool';
 export const AuthContext = React.createContext(null);
 
 export function AuthProvider({ children }) {
-
-  // const [idToken, setIdToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
-  // const [accessToken, setAccessToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN));
-
   const onLogin = (loginDetails, callback) => {
     loginCognitoUser({
       'Username' : loginDetails.email,
       'Password' : loginDetails.password,
     })
-      // .then(tokenSet => {
-      //   // accessToken, idToken, refreshToken
-      //   localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
-      //   setIdToken(tokenSet.getIdToken().getJwtToken())
-
-      //   localStorage.setItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN, tokenSet.getAccessToken().getJwtToken());
-      //   setAccessToken(tokenSet.getAccessToken().getJwtToken())
-
-      //   callback();
-      // })
-      // .catch(err => {
-      //   callback(err)
-      // });
       .then(() => {
         callback();
       })
@@ -62,14 +45,10 @@ export function AuthProvider({ children }) {
     getCognitoSession()
       .then(session => {
         callback(session)
-        // if (session === undefined) {
-        //   callback(false)
-        // } else {
-        //   callback(session)
-        // }
       })
       .catch(err => {
-        callback(err)
+        console.log('User:', err)
+        // callback(err)
       });
   };
 
@@ -89,12 +68,11 @@ export function AuthProvider({ children }) {
   // };
 
   const value = {
-    // idToken,
-    // accessToken,
     onLogin,
     onLogout,
     onSignup,
     getSession,
+    getCognitoSession,
 
     // fakeSigninA, // a very simple version to test with
     // fakeSigninB,
@@ -154,7 +132,7 @@ function getCognitoSession() {
         resolve(session);
       });
     } else {
-      reject(false);
+      reject(null);
     }
   })
 }

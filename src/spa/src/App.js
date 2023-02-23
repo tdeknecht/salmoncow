@@ -21,7 +21,8 @@ import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
 import SignupForm from './components/SignupForm/SignupForm';
 import { Dashboard } from './components/Dashboard/Dashboard';
-import { AuthContext, AuthProvider } from './utils/AuthProvider';
+import { AuthProvider } from './utils/AuthProvider';
+import { UserPool } from './utils/UserPool';
 
 export default function App() {
   return (
@@ -78,11 +79,12 @@ function Layout() {
 }
 
 function RequireAuth({ children }) {
-  const { idToken } = React.useContext(AuthContext);
+  // const { idToken } = React.useContext(AuthContext);
+  const user = UserPool.getCurrentUser();
   
   const location = useLocation();
 
-  if (!idToken) {
+  if (!user) {
     // Redirect them to the /login page, but save the current location they were
     // trying to go to when they were redirected. This allows us to send them
     // along to that page after they login, which is a nicer user experience
