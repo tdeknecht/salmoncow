@@ -26,5 +26,11 @@ function LoginStatus() {
     return (
       <p>You are not logged in. <Link to="/login">Login here.</Link></p>
     )
+  } else {
+    return (
+      <p>
+        Go to <Link to='/dashboard'>Dashboard</Link>
+      </p>
+    )
   }
 }

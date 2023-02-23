@@ -65,7 +65,7 @@ export default function Dashboard() {
           console.log(err.message || JSON.stringify(err));
           return;
         }
-        console.log('call result: ' + result);
+        setName(state.name)
       });
     });
   }
@@ -92,7 +92,7 @@ export default function Dashboard() {
         Hello, {user}
         <TextField
           id='name'
-          label="Update Name"
+          label="Add Name"
           variant='standard'
           type='name'
           value={state.name}
