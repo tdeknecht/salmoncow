@@ -20,7 +20,7 @@ import Home from './components/Home/Home';
 import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
 import SignupForm from './components/SignupForm/SignupForm';
-import { Dashboard } from './components/Dashboard/Dashboard';
+import Dashboard from './components/Dashboard/Dashboard';
 import { AuthProvider } from './utils/AuthProvider';
 import { UserPool } from './utils/UserPool';
 
@@ -79,7 +79,6 @@ function Layout() {
 }
 
 function RequireAuth({ children }) {
-  // const { idToken } = React.useContext(AuthContext);
   const user = UserPool.getCurrentUser();
   
   const location = useLocation();

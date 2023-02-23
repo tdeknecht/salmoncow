@@ -12,7 +12,7 @@ import Link from '@mui/material/Link';
 
 import { AuthContext } from '../../utils/AuthProvider';
 
-function LoginForm() {
+export default function LoginForm() {
   const { onLogin } = React.useContext(AuthContext);
 
   const location = useLocation();
@@ -153,4 +153,3 @@ function LoginForm() {
     </Box>
   )
 }
-export default LoginForm;

@@ -22,12 +22,6 @@ export function AuthProvider({ children }) {
     const user = UserPool.getCurrentUser();
     user.signOut();
 
-    // localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
-    // localStorage.removeItem(process.env.REACT_APP_COGNITO_ACCESS_TOKEN)
-    // localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
-    
-    // setIdToken(null);
-
     callback();
   };
 
