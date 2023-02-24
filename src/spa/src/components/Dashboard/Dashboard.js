@@ -5,10 +5,26 @@ import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 
 import { UserPool } from '../../utils/UserPool';
 
 export default function Dashboard() {
+  return(
+    <Grid
+      container
+      spacing={0}
+      direction='column'
+      alignItems='center'
+    >
+      <Profile />
+    </Grid>
+  )
+}
+
+function Profile() {
+  // console.log(localStorage.getItem(process.env.REACT_APP_USERNAME))
+
   // Retrieve Session and display attributes
   const [user, setUser] = React.useState(null);
   const [name, setName] = React.useState(null);
@@ -20,6 +36,7 @@ export default function Dashboard() {
         console.log(err.message || JSON.stringify(err));
         return;
       }
+      // eslint-disable-next-line
       const attributes = result.reduce((obj, item) => (obj[item.getName()] = item.getValue(), obj) ,{});
       setUser(attributes.email)
       setName(attributes.name)
@@ -62,21 +79,25 @@ export default function Dashboard() {
     cognitoUser.getSession(() => {
       cognitoUser.updateAttributes(attributeList, function(err, result) {
         if (err) {
+          // TODO: Add same alerting box as other forms
           console.log(err.message || JSON.stringify(err));
           return;
         }
         setName(state.name)
+        setButtonLoading(false);
+        setDisableButton(false);
+        state.name = ''
       });
     });
   }
 
-  if (name) {
-    return (
-      <div>
-        Hello, {name}
-      </div>
-    )
-  } else if (user) {
+  if (user) {
+    let handle = ''
+    if (name) {
+      handle = name
+    } else {
+      handle = user
+    }
     return (
       <Box
         component='form'
@@ -89,10 +110,10 @@ export default function Dashboard() {
         noValidate
         autoComplete='off'
       >
-        Hello, {user}
+        Hello, {handle}
         <TextField
           id='name'
-          label="Add Name"
+          label="Update Name"
           variant='standard'
           type='name'
           value={state.name}

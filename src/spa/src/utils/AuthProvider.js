@@ -10,7 +10,8 @@ export function AuthProvider({ children }) {
       'Username' : loginDetails.email,
       'Password' : loginDetails.password,
     })
-      .then(() => {
+      .then((result) => {
+        localStorage.setItem(process.env.REACT_APP_USERNAME, result.idToken.payload.email);
         callback();
       })
       .catch(err => {
@@ -35,16 +36,16 @@ export function AuthProvider({ children }) {
       });
   };
 
-  const getSession = (callback) => {
-    getCognitoSession()
-      .then(session => {
-        callback(session)
-      })
-      .catch(err => {
-        console.log('User:', err)
-        // callback(err)
-      });
-  };
+  // const getSession = (callback) => {
+  //   getCognitoSession()
+  //     .then(session => {
+  //       callback(session)
+  //     })
+  //     .catch(err => {
+  //       console.log('User:', err)
+  //       // callback(err)
+  //     });
+  // };
 
   // const fakeSigninA = (loginDetails, callback) => {
   //   console.log(loginDetails)
@@ -65,8 +66,8 @@ export function AuthProvider({ children }) {
     onLogin,
     onLogout,
     onSignup,
-    getSession,
-    getCognitoSession,
+    // getSession,
+    // getCognitoSession,
 
     // fakeSigninA, // a very simple version to test with
     // fakeSigninB,
@@ -114,23 +115,22 @@ function signupCognitoUser(signupDetails) {
   ));
 }
 
-function getCognitoSession() {
-  return new Promise((resolve, reject) => {
-    const user = UserPool.getCurrentUser();
-    if (user) {
-      // NOTE: getSession must be called to authenticate user before calling getUserAttributes
-      user.getSession((err, session) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(session);
-      });
-    } else {
-      reject(null);
-    }
-  })
-}
-
+// function getCognitoSession() {
+//   return new Promise((resolve, reject) => {
+//     const user = UserPool.getCurrentUser();
+//     if (user) {
+//       // NOTE: getSession must be called to authenticate user before calling getUserAttributes
+//       user.getSession((err, session) => {
+//         if (err) {
+//           reject(err);
+//         }
+//         resolve(session);
+//       });
+//     } else {
+//       reject(null);
+//     }
+//   })
+// }
 
 // This represents some generic auth provider API, like Firebase.
 // const fakeAuthProvider = {
