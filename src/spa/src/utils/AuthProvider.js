@@ -1,21 +1,17 @@
 import React from 'react';
+import { AuthenticationDetails, CognitoUser } from 'amazon-cognito-identity-js';
+import { UserPool } from '../utils/UserPool';
 
 export const AuthContext = React.createContext(null);
 
 export function AuthProvider({ children }) {
-
-  const [token, setToken] = React.useState(localStorage.getItem(process.env.REACT_APP_COGNITO_ID_TOKEN));
-
   const onLogin = (loginDetails, callback) => {
     loginCognitoUser({
       'Username' : loginDetails.email,
       'Password' : loginDetails.password,
     })
-      .then(tokenSet => {
-        // accessToken, idToken, refreshToken
-        localStorage.setItem(process.env.REACT_APP_COGNITO_ID_TOKEN, tokenSet.getIdToken().getJwtToken());
-        setToken(tokenSet.getIdToken().getJwtToken())
-
+      .then((result) => {
+        localStorage.setItem(process.env.REACT_APP_USERNAME, result.idToken.payload.email);
         callback();
       })
       .catch(err => {
@@ -24,12 +20,8 @@ export function AuthProvider({ children }) {
   };
 
   const onLogout = (callback) => {
-    // add new LogoutCognitoUser logic to truly log them out of Cognito
-
-    localStorage.removeItem(process.env.REACT_APP_COGNITO_REFRESH_TOKEN)
-    localStorage.removeItem(process.env.REACT_APP_COGNITO_ID_TOKEN)
-    
-    setToken(null);
+    const user = UserPool.getCurrentUser();
+    user.signOut();
 
     callback();
   };
@@ -44,10 +36,21 @@ export function AuthProvider({ children }) {
       });
   };
 
+  // const getSession = (callback) => {
+  //   getCognitoSession()
+  //     .then(session => {
+  //       callback(session)
+  //     })
+  //     .catch(err => {
+  //       console.log('User:', err)
+  //       // callback(err)
+  //     });
+  // };
+
   // const fakeSigninA = (loginDetails, callback) => {
   //   console.log(loginDetails)
   //   return fakeAuthProvider.signin(() => {
-  //     setToken("abc123");
+  //     setIdToken("abc123");
   //     callback();
   //   });
   // };
@@ -55,15 +58,16 @@ export function AuthProvider({ children }) {
   // const fakeSigninB = async () => {
   //   const token = await fakeAuthToken();
 
-  //   setToken(token);
+  //   setIdToken(idToken);
   //   navigate('/dashboard');
   // };
 
   const value = {
-    token,
     onLogin,
     onLogout,
     onSignup,
+    // getSession,
+    // getCognitoSession,
 
     // fakeSigninA, // a very simple version to test with
     // fakeSigninB,
@@ -76,23 +80,13 @@ export function AuthProvider({ children }) {
   );
 }
 
-// TODO: Move both loginCognitoUser and signupCognitoUser to above
-
-// https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
-function loginCognitoUser(loginDetails) {
-  const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-
-  const cognitoUserPool = new AmazonCognitoIdentity.CognitoUserPool({
-    UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-    ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-  });
-  
-  const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+function loginCognitoUser(loginDetails) {  
+  const cognitoUser = new CognitoUser({
     Username: loginDetails.Username,
-    Pool: cognitoUserPool,
+    Pool: UserPool,
   });
   
-  const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(loginDetails);
+  const authenticationDetails = new AuthenticationDetails(loginDetails);
   
   return new Promise((resolve, reject) =>
     cognitoUser.authenticateUser(authenticationDetails, {
@@ -106,29 +100,37 @@ function loginCognitoUser(loginDetails) {
   );
 }
 
-// https://github.com/aws-amplify/amplify-js/tree/master/packages/amazon-cognito-identity-js#setup
 function signupCognitoUser(signupDetails) {
-  const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-
-  const cognitoUserPool = new AmazonCognitoIdentity.CognitoUserPool({
-      UserPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-    });
-
   const attributes = [
       // { Name: 'name', Value: p.name }
   ]
 
   return new Promise((resolve, reject) => (
-      cognitoUserPool.signUp(signupDetails.email, signupDetails.password, attributes, signupDetails.validationData, (err, result) => {
-      if (err) {
+      UserPool.signUp(signupDetails.email, signupDetails.password, attributes, signupDetails.validationData, (err, result) => {
+        if (err) {
           reject(err);
-      }
-      resolve(result);
+        }
+        resolve(result);
       })
   ));
 }
 
+// function getCognitoSession() {
+//   return new Promise((resolve, reject) => {
+//     const user = UserPool.getCurrentUser();
+//     if (user) {
+//       // NOTE: getSession must be called to authenticate user before calling getUserAttributes
+//       user.getSession((err, session) => {
+//         if (err) {
+//           reject(err);
+//         }
+//         resolve(session);
+//       });
+//     } else {
+//       reject(null);
+//     }
+//   })
+// }
 
 // This represents some generic auth provider API, like Firebase.
 // const fakeAuthProvider = {
@@ -147,4 +149,3 @@ function signupCognitoUser(signupDetails) {
 //   new Promise((resolve) => {
 //     setTimeout(() => resolve('abc123'), 250);
 // });
-

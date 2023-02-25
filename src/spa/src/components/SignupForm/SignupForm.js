@@ -13,13 +13,11 @@ import Link from '@mui/material/Link';
 
 import { AuthContext } from '../../utils/AuthProvider';
 
-function useAuth() {
-  return React.useContext(AuthContext);
-}
-
 function RegistrationForm() {
+  const { onLogin } = React.useContext(AuthContext);
+  const { onSignup } = React.useContext(AuthContext);
+
   const navigate = useNavigate();
-  const auth = useAuth();
 
   const [state, setState] = useState({
     email : '',
@@ -81,9 +79,9 @@ function RegistrationForm() {
       setButtonLoading(false);
       setDisableButton(false);
     } else if(state.password === state.confirmPassword) {
-      auth.onSignup(signupDetails, (err) => {
+      onSignup(signupDetails, (err) => {
         if(!err) {
-          auth.onLogin(signupDetails, (err) => {
+          onLogin(signupDetails, (err) => {
             if(!err) {
               // confirm user via email. Needs to happen after registration+authentication. I left this
               //   here for when in the future I decide to move it probably to AuthProvider
