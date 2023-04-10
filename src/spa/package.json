@@ -9,7 +9,7 @@
     "@mui/lab": "^5.0.0-alpha.68",
     "@mui/material": "^5.4.1",
     "amazon-cognito-identity-js": "^4.6.3",
-    "aws-sdk": "^2.1059.0",
+    "aws-sdk": "^2.1354.0",
     "jwt-decode": "^3.1.2",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
