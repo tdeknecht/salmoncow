@@ -167,19 +167,6 @@ module "s3_bucket_salmoncow_app" {
       noncurrent_version_expiration = {
         days = 30
       }
-    },
-    {
-      id      = "cloudtrail"
-      enabled = true
-      prefix  = "cloudtrail/"
-
-      expiration = {
-        days = 180
-      }
-
-      noncurrent_version_expiration = {
-        days = 7
-      }
     }
   ]
 
@@ -234,19 +221,6 @@ module "s3_bucket_salmoncow_data" {
 
       noncurrent_version_expiration = {
         days = 30
-      }
-    },
-    {
-      id      = "cloudtrail"
-      enabled = true
-      prefix  = "cloudtrail/"
-
-      expiration = {
-        days = 180
-      }
-
-      noncurrent_version_expiration = {
-        days = 7
       }
     }
   ]
