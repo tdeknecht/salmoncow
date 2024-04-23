@@ -162,7 +162,7 @@ resource "aws_lambda_function" "pre_sign_up" {
   handler          = "${local.lambda_file_name}.lambda_handler"
   filename         = "${path.module}/${local.lambda_file_name}.zip"
   source_code_hash = data.archive_file.lambda_function.output_base64sha256 # if using archive_file approach
-  runtime          = "python3.8"
+  runtime          = "python3.12"
   timeout          = "5"
   tags             = var.tags
 
