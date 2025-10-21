@@ -249,24 +249,3 @@ data "aws_iam_policy_document" "s3_bucket_policy_salmoncow_data" {
     }
   }
 }
-
-# ------------------------------------------------------------------------------
-# User Federation
-# ------------------------------------------------------------------------------
-
-module "federation" {
-  source = "./federation"
-
-  ou        = var.ou
-  use_case  = var.use_case
-  tenant    = var.tenant
-  recaptcha = { # https://www.google.com/recaptcha/admin
-    secret_key = var.recaptcha_secret_key,
-  }
-
-  tags = local.tags
-}
-
-output "cognito_user_pool_id" { value = module.federation.user_pool_id }
-output "cognito_client_id" { value = module.federation.client_id }
-output "cognito_identity_pool_id" { value = module.federation.identity_pool_id }
