@@ -12,48 +12,9 @@ permissions:
   contents: read    # This is required for actions/checkout
 
 jobs:
-  build-infra:
-    runs-on: ubuntu-latest
-    container: 
-      image: tdeknecht/aws:alpine
-      env:
-        TF_VAR_RECAPTCHA_SECRET_KEY: ${{ secrets.TF_VAR_RECAPTCHA_SECRET_KEY }}
-
-    steps:
-      - name: Git clone the repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: arn:aws:iam::678856875282:role/td001-dev-salmoncow-deployer-role
-          role-session-name: salmoncowDeployer
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Set up tfvars
-        working-directory: ./src/terraform
-        id: vars
-        run: |
-          cat > pipeline.auto.tfvars <<EOF
-          recaptcha_secret_key="${{ secrets.TF_VAR_RECAPTCHA_SECRET_KEY }}"
-          EOF
-
-      - name: Terraform INIT and PLAN
-        run: |
-          cd src/terraform
-          terraform -version
-          terraform init
-          terraform plan
-
-      - name: Terraform APPLY
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        run: |
-          cd src/terraform
-          terraform apply -auto-approve
-
+  # deploy-infra: Do locally while migrating
   deploy-app:
     runs-on: ubuntu-latest
-    needs: [build-infra]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
     steps:
