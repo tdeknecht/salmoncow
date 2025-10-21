@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Moo" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+    <title>Salmoncow</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+      }
+
+      .logo {
+        margin-top: 10px;
+        height: 40vmin;
+        pointer-events: none;
+        cursor: pointer;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .logo.spinning {
+          animation: logo-spin 10s linear infinite;
+        }
+      }
+
+      .footer {
+        margin-top: 10px;
+        color: grey;
+        font-size: 9px;
+      }
+
+      .footer a {
+        color: grey;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      @keyframes logo-spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(-360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img src="salmoncow.png" class="logo" alt="salmoncow logo" id="logo" />
+
+      <p class="footer">
+        This is a dev site. It's simply a fun <a href="https://github.com/tdeknecht/salmoncow" target="_blank" rel="noopener noreferrer">side project</a>.
+      </p>
+    </div>
+
+    <script>
+      // Optional: Click to toggle logo spin animation
+      const logo = document.getElementById('logo');
+      logo.addEventListener('click', function() {
+        logo.classList.toggle('spinning');
+      });
+    </script>
+  </body>
+</html>
